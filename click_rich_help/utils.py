@@ -1,12 +1,13 @@
-import os
 import io
+import os
+
 from click.termui import _ansi_colors, _ansi_reset_all
-from rich.console import Console,CaptureError
+from rich.console import CaptureError, Console
 from rich.errors import MissingStyle
 from rich.text import Text
 
+console = Console()
 
-console=Console()
 
 class HelpColorsException(Exception):
     pass
@@ -15,28 +16,30 @@ class HelpColorsException(Exception):
 def _get_rich_output(text, color):
     try:
         with console.capture() as capture:
-            console.print(text, style=color, end="")   
+            console.print(text, style=color, end="")
         return capture.get()
     except MissingStyle:
         raise ValueError
     except CaptureError:
-        raise ValueError(f"Error capturing output for text: {text} and style: {color}") 
+        raise ValueError(f"Error capturing output for text: {text} and style: {color}")
+
 
 def _apply_rich(help_text):
     try:
         with console.capture() as capture:
-            console.print(help_text, end="")   
+            console.print(help_text, end="")
         return capture.get()
     except CaptureError:
-        raise ValueError("error in help style") 
+        raise ValueError("error in help style")
+
 
 def _colorize(text, color=None, suffix=None):
     if not color or "NO_COLOR" in os.environ:
-        return text + (suffix or '')
+        return text + (suffix or "")
     try:
-        return _get_rich_output(text, color) + (suffix or '')
+        return _get_rich_output(text, color) + (suffix or "")
     except ValueError:
-        raise HelpColorsException('Unknown color %r' % color)
+        raise HelpColorsException("Unknown color %r" % color)
 
 
 def _extend_instance(obj, cls):
