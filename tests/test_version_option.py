@@ -5,7 +5,7 @@ from click_rich_help import version_option
 
 def test_message_color(runner):
     @click.group()
-    @version_option(version="1.0", prog_name="example", message_color="green")
+    @version_option(version="1.0", prog_name="example", message_style="green")
     def cli():
         pass
 
@@ -21,8 +21,8 @@ def test_version_and_prog_name_color(runner):
     @version_option(
         version="1.0",
         prog_name="example",
-        version_color="green",
-        prog_name_color="yellow",
+        version_style="green",
+        prog_name_style="yellow",
     )
     def cli():
         pass
@@ -39,10 +39,10 @@ def test_custom_message(runner):
     @version_option(
         version="1.0",
         prog_name="example",
-        version_color="green",
-        prog_name_color="white",
+        version_style="green",
+        prog_name_style="white",
         message="%(prog)s %(version)s\n   python=3.7",
-        message_color="bright_black",
+        message_style="bright_black",
     )
     def cli():
         pass

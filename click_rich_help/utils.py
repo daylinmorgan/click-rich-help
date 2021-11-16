@@ -13,15 +13,15 @@ class HelpColorsException(Exception):
     pass
 
 
-def _get_rich_output(text, color):
+def _get_rich_output(text, style):
     try:
         with console.capture() as capture:
-            console.print(text, style=color, end="")
+            console.print(text, style=style, end="")
         return capture.get()
     except MissingStyle:
         raise ValueError
     except CaptureError:
-        raise ValueError(f"Error capturing output for text: {text} and style: {color}")
+        raise ValueError(f"Error capturing output for text: {text} and style: {style}")
 
 
 def _apply_rich(help_text):
@@ -33,13 +33,13 @@ def _apply_rich(help_text):
         raise ValueError("error in help style")
 
 
-def _colorize(text, color=None, suffix=None):
-    if not color or "NO_COLOR" in os.environ:
+def _colorize(text, style=None, suffix=None):
+    if not style or "NO_COLOR" in os.environ:
         return text + (suffix or "")
     try:
-        return _get_rich_output(text, color) + (suffix or "")
+        return _get_rich_output(text, style) + (suffix or "")
     except ValueError:
-        raise HelpColorsException("Unknown color %r" % color)
+        raise HelpColorsException("Unknown style %r" % style)
 
 
 def _extend_instance(obj, cls):

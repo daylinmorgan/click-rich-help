@@ -10,15 +10,15 @@ class HelpColorsFormatter(click.HelpFormatter):
 
     def __init__(
         self,
-        headers_color=None,
-        options_color=None,
-        options_custom_colors=None,
+        headers_style=None,
+        options_style=None,
+        options_custom_styles=None,
         *args,
         **kwargs
     ):
-        self.headers_color = headers_color
-        self.options_color = options_color
-        self.options_custom_colors = options_custom_colors
+        self.headers_style = headers_style
+        self.options_style = options_style
+        self.options_custom_styles = options_custom_styles
         super(HelpColorsFormatter, self).__init__(*args, **kwargs)
 
     def _get_opt_names(self, option_name):
@@ -33,20 +33,20 @@ class HelpColorsFormatter(click.HelpFormatter):
     def _pick_color(self, option_name):
         opts = self._get_opt_names(option_name)
         for opt in opts:
-            if self.options_custom_colors and (
-                opt in self.options_custom_colors.keys()
+            if self.options_custom_styles and (
+                opt in self.options_custom_styles.keys()
             ):
-                return self.options_custom_colors[opt]
-        return self.options_color
+                return self.options_custom_styles[opt]
+        return self.options_style
 
     def write_usage(self, prog, args="", prefix="Usage"):
-        colorized_prefix = _colorize(prefix, color=self.headers_color, suffix=": ")
+        colorized_prefix = _colorize(prefix, style=self.headers_style, suffix=": ")
         super(HelpColorsFormatter, self).write_usage(
             prog, args, prefix=colorized_prefix
         )
 
     def write_heading(self, heading):
-        colorized_heading = _colorize(heading, color=self.headers_color)
+        colorized_heading = _colorize(heading, style=self.headers_style)
         super(HelpColorsFormatter, self).write_heading(colorized_heading)
 
     def write_dl(self, rows, **kwargs):
@@ -66,24 +66,24 @@ class HelpColorsFormatter(click.HelpFormatter):
 class HelpColorsMixin(object):
     def __init__(
         self,
-        help_headers_color=None,
-        help_options_color=None,
-        help_options_custom_colors=None,
+        help_headers_style=None,
+        help_options_style=None,
+        help_options_custom_styles=None,
         *args,
         **kwargs
     ):
-        self.help_headers_color = help_headers_color
-        self.help_options_color = help_options_color
-        self.help_options_custom_colors = help_options_custom_colors
+        self.help_headers_style = help_headers_style
+        self.help_options_style = help_options_style
+        self.help_options_custom_styles = help_options_custom_styles
         super(HelpColorsMixin, self).__init__(*args, **kwargs)
 
     def get_help(self, ctx):
         formatter = HelpColorsFormatter(
             width=ctx.terminal_width,
             max_width=ctx.max_content_width,
-            headers_color=self.help_headers_color,
-            options_color=self.help_options_color,
-            options_custom_colors=self.help_options_custom_colors,
+            headers_style=self.help_headers_style,
+            options_style=self.help_options_style,
+            options_custom_styles=self.help_options_custom_styles,
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
@@ -95,16 +95,16 @@ class HelpColorsGroup(HelpColorsMixin, click.Group):
 
     def command(self, *args, **kwargs):
         kwargs.setdefault("cls", HelpColorsCommand)
-        kwargs.setdefault("help_headers_color", self.help_headers_color)
-        kwargs.setdefault("help_options_color", self.help_options_color)
-        kwargs.setdefault("help_options_custom_colors", self.help_options_custom_colors)
+        kwargs.setdefault("help_headers_style", self.help_headers_style)
+        kwargs.setdefault("help_options_style", self.help_options_style)
+        kwargs.setdefault("help_options_custom_styles", self.help_options_custom_styles)
         return super(HelpColorsGroup, self).command(*args, **kwargs)
 
     def group(self, *args, **kwargs):
         kwargs.setdefault("cls", HelpColorsGroup)
-        kwargs.setdefault("help_headers_color", self.help_headers_color)
-        kwargs.setdefault("help_options_color", self.help_options_color)
-        kwargs.setdefault("help_options_custom_colors", self.help_options_custom_colors)
+        kwargs.setdefault("help_headers_style", self.help_headers_style)
+        kwargs.setdefault("help_options_style", self.help_options_style)
+        kwargs.setdefault("help_options_custom_styles", self.help_options_custom_styles)
         return super(HelpColorsGroup, self).group(*args, **kwargs)
 
 
@@ -128,11 +128,11 @@ class HelpColorsMultiCommand(HelpColorsMixin, click.MultiCommand):
             if isinstance(cmd, click.Command):
                 _extend_instance(cmd, HelpColorsCommand)
 
-        if not getattr(cmd, "help_headers_color", None):
-            cmd.help_headers_color = self.help_headers_color
-        if not getattr(cmd, "help_options_color", None):
-            cmd.help_options_color = self.help_options_color
-        if not getattr(cmd, "help_options_custom_colors", None):
-            cmd.help_options_custom_colors = self.help_options_custom_colors
+        if not getattr(cmd, "help_headers_style", None):
+            cmd.help_headers_style = self.help_headers_style
+        if not getattr(cmd, "help_options_style", None):
+            cmd.help_options_style = self.help_options_style
+        if not getattr(cmd, "help_options_custom_styles", None):
+            cmd.help_options_custom_styles = self.help_options_custom_styles
 
         return cmd_name, cmd, args[1:]

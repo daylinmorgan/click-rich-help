@@ -7,7 +7,7 @@ from click_rich_help import HelpColorsException, HelpColorsGroup
 
 def test_basic_group(runner):
     @click.command(
-        cls=HelpColorsGroup, help_headers_color="yellow", help_options_color="green"
+        cls=HelpColorsGroup, help_headers_style="yellow", help_options_style="green"
     )
     @click.option("--name", help="The person to greet.")
     def cli(count):
@@ -26,7 +26,7 @@ def test_basic_group(runner):
 
 def test_basic_command(runner):
     @click.group(
-        cls=HelpColorsGroup, help_headers_color="yellow", help_options_color="green"
+        cls=HelpColorsGroup, help_headers_style="yellow", help_options_style="green"
     )
     def cli():
         pass
@@ -60,7 +60,7 @@ def test_basic_command(runner):
 
 
 def test_unknown_color(runner):
-    @click.command(cls=HelpColorsGroup, help_headers_color="unknwnclr")
+    @click.command(cls=HelpColorsGroup, help_headers_style="unknwnstyle")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -68,12 +68,12 @@ def test_unknown_color(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert result.exception
     assert isinstance(result.exception, HelpColorsException)
-    assert str(result.exception) == "Unknown color 'unknwnclr'"
+    assert str(result.exception) == "Unknown style 'unknwnstyle'"
 
 
 def test_env_no_color(runner):
     @click.command(
-        cls=HelpColorsGroup, help_headers_color="yellow", help_options_color="green"
+        cls=HelpColorsGroup, help_headers_style="yellow", help_options_style="green"
     )
     @click.option("--name", help="The person to greet.")
     def cli(count):

@@ -15,7 +15,7 @@ def test_multi_command(runner):
         click.echo("command 1")
 
     @click.group(
-        cls=HelpColorsGroup, help_headers_color="red", help_options_color="blue"
+        cls=HelpColorsGroup, help_headers_style="red", help_options_style="blue"
     )
     def cmd2():
         pass
@@ -33,7 +33,7 @@ def test_multi_command(runner):
             commands = {"cmd1": cmd1, "cmd2": cmd2}
             return commands[name]
 
-    @click.command(cls=MyCLI, help_headers_color="yellow", help_options_color="green")
+    @click.command(cls=MyCLI, help_headers_style="yellow", help_options_style="green")
     def cli():
         pass
 
