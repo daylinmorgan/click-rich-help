@@ -6,7 +6,7 @@ from rich.console import CaptureError, Console
 from rich.errors import MissingStyle
 from rich.text import Text
 
-console = Console()
+console = Console(highlight=False)
 
 
 class HelpColorsException(Exception):
