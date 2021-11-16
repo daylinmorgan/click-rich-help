@@ -12,7 +12,7 @@ def test_message_color(runner):
     result = runner.invoke(cli, ["--version"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[32mexample\x1b[0m\x1b[32m, version \x1b[0m\x1b[1;36m1.0\x1b[0m"
+        "\x1b[32mexample\x1b[0m\x1b[32m, version \x1b[0m\x1b[32m1.0\x1b[0m"
     ]
 
 
@@ -30,7 +30,7 @@ def test_version_and_prog_name_color(runner):
     result = runner.invoke(cli, ["--version"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mexample\x1b[0m, version \x1b[1;36m1.0\x1b[0m"
+        "\x1b[33mexample\x1b[0m, version \x1b[32m1.0\x1b[0m"
     ]
 
 
@@ -50,7 +50,6 @@ def test_custom_message(runner):
     result = runner.invoke(cli, ["--version"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[37mexample\x1b[0m\x1b[90m \x1b[0m\x1b[1;36m1.0\x1b[0m",
-        "\x1b[90m   "
-        "\x1b[0m\x1b[33mpython\x1b[0m\x1b[90m=\x1b[0m\x1b[1;36m3\x1b[0m\x1b[1;36m.7\x1b[0m",
+        "\x1b[37mexample\x1b[0m\x1b[90m \x1b[0m\x1b[32m1.0\x1b[0m",
+        "\x1b[90m   python=3.7\x1b[0m",
     ]

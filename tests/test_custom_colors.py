@@ -136,6 +136,6 @@ def test_flag_option_color(runner, option_name):
         "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
         "",
         "\x1b[33mOptions\x1b[0m:",
-        "  \x1b[31m--shout \x1b[0m\x1b[35m/\x1b[0m\x1b[31m --no-shout\x1b[0m",
+        "  \x1b[31m--shout / --no-shout\x1b[0m",
         "  \x1b[32m--help\x1b[0m                Show this message and exit.",
     ]
