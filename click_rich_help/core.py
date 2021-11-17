@@ -48,11 +48,13 @@ class HelpColorsFormatter(click.HelpFormatter):
         if self.metavar_style:
             metavar = self._extract_metavar(option_name).strip()
             term = option_name.replace(metavar, "")
-            return _colorize(term, self._pick_color(term)) + _colorize(
-                metavar, (self.metavar_style)
-            )
-        else:
-            return _colorize(option_name, self._pick_color(option_name))
+            # don't apply to command
+            if not metavar == option_name:
+                return _colorize(term, self._pick_color(term)) + _colorize(
+                    metavar, (self.metavar_style)
+                )
+
+        return _colorize(option_name, self._pick_color(option_name))
 
     def write_usage(self, prog, args="", prefix="Usage"):
         colorized_prefix = _colorize(prefix, style=self.headers_style, suffix=": ")
