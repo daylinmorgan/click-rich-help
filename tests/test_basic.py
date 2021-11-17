@@ -1,6 +1,4 @@
 import click
-import pytest
-from rich.errors import MissingStyle
 
 from click_rich_help import HelpColorsException, HelpColorsGroup
 
@@ -68,7 +66,7 @@ def test_unknown_color(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert result.exception
     assert isinstance(result.exception, HelpColorsException)
-    assert str(result.exception) == "Unknown style 'unknwnstyle'"
+    assert str(result.exception) == "Unknown style unknwnstyle"
 
 
 def test_env_no_color(runner):

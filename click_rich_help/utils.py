@@ -1,10 +1,7 @@
-import io
 import os
 
-from click.termui import _ansi_colors, _ansi_reset_all
 from rich.console import CaptureError, Console
 from rich.errors import MissingStyle
-from rich.text import Text
 
 console = Console(highlight=False)
 
@@ -29,8 +26,8 @@ def _apply_rich(help_text):
         with console.capture() as capture:
             console.print(help_text, end="")
         return capture.get()
-    except CaptureError:
-        raise ValueError("error in help style")
+    except MissingStyle:
+        raise ValueError(f"Error: error in help string {help_text}")
 
 
 def _colorize(text, style=None, suffix=None):
@@ -39,7 +36,7 @@ def _colorize(text, style=None, suffix=None):
     try:
         return _get_rich_output(text, style) + (suffix or "")
     except ValueError:
-        raise HelpColorsException("Unknown style %r" % style)
+        raise HelpColorsException(f"Unknown style {style}")
 
 
 def _extend_instance(obj, cls):

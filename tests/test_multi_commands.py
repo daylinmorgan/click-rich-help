@@ -1,5 +1,4 @@
 import click
-import pytest
 
 from click_rich_help import HelpColorsGroup, HelpColorsMultiCommand
 
