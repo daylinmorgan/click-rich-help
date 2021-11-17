@@ -12,12 +12,14 @@ class HelpColorsFormatter(click.HelpFormatter):
         self,
         headers_style=None,
         options_style=None,
+        metavar_style=None,
         options_custom_styles=None,
         *args,
         **kwargs
     ):
         self.headers_style = headers_style
         self.options_style = options_style
+        self.metavar_style = metavar_style
         self.options_custom_styles = options_custom_styles
         super(HelpColorsFormatter, self).__init__(*args, **kwargs)
 
@@ -39,6 +41,19 @@ class HelpColorsFormatter(click.HelpFormatter):
                 return self.options_custom_styles[opt]
         return self.options_style
 
+    def _extract_metavar(self, option_name):
+        return self.options_regex.sub("", option_name).replace(",", "").strip()
+
+    def _write_definition(self, option_name):
+        if self.metavar_style:
+            metavar = self._extract_metavar(option_name).strip()
+            term = option_name.replace(metavar, "")
+            return _colorize(term, self._pick_color(term)) + _colorize(
+                metavar, (self.metavar_style)
+            )
+        else:
+            return _colorize(option_name, self._pick_color(option_name))
+
     def write_usage(self, prog, args="", prefix="Usage"):
         colorized_prefix = _colorize(prefix, style=self.headers_style, suffix=": ")
         super(HelpColorsFormatter, self).write_usage(
@@ -50,10 +65,8 @@ class HelpColorsFormatter(click.HelpFormatter):
         super(HelpColorsFormatter, self).write_heading(colorized_heading)
 
     def write_dl(self, rows, **kwargs):
-
         colorized_rows = [
-            (_colorize(row[0], self._pick_color(row[0])), _apply_rich(row[1]))
-            for row in rows
+            (self._write_definition(row[0]), _apply_rich(row[1])) for row in rows
         ]
         super(HelpColorsFormatter, self).write_dl(colorized_rows, **kwargs)
 
@@ -68,12 +81,14 @@ class HelpColorsMixin(object):
         self,
         help_headers_style=None,
         help_options_style=None,
+        help_metavar_style=None,
         help_options_custom_styles=None,
         *args,
         **kwargs
     ):
         self.help_headers_style = help_headers_style
         self.help_options_style = help_options_style
+        self.help_metavar_style = help_metavar_style
         self.help_options_custom_styles = help_options_custom_styles
         super(HelpColorsMixin, self).__init__(*args, **kwargs)
 
@@ -83,6 +98,7 @@ class HelpColorsMixin(object):
             max_width=ctx.max_content_width,
             headers_style=self.help_headers_style,
             options_style=self.help_options_style,
+            metavar_style=self.help_metavar_style,
             options_custom_styles=self.help_options_custom_styles,
         )
         self.format_help(ctx, formatter)
@@ -97,6 +113,7 @@ class HelpColorsGroup(HelpColorsMixin, click.Group):
         kwargs.setdefault("cls", HelpColorsCommand)
         kwargs.setdefault("help_headers_style", self.help_headers_style)
         kwargs.setdefault("help_options_style", self.help_options_style)
+        kwargs.setdefault("help_metavar_style", self.help_metavar_style)
         kwargs.setdefault("help_options_custom_styles", self.help_options_custom_styles)
         return super(HelpColorsGroup, self).command(*args, **kwargs)
 
@@ -104,6 +121,7 @@ class HelpColorsGroup(HelpColorsMixin, click.Group):
         kwargs.setdefault("cls", HelpColorsGroup)
         kwargs.setdefault("help_headers_style", self.help_headers_style)
         kwargs.setdefault("help_options_style", self.help_options_style)
+        kwargs.setdefault("help_metavar_style", self.help_metavar_style)
         kwargs.setdefault("help_options_custom_styles", self.help_options_custom_styles)
         return super(HelpColorsGroup, self).group(*args, **kwargs)
 
@@ -132,6 +150,8 @@ class HelpColorsMultiCommand(HelpColorsMixin, click.MultiCommand):
             cmd.help_headers_style = self.help_headers_style
         if not getattr(cmd, "help_options_style", None):
             cmd.help_options_style = self.help_options_style
+        if not getattr(cmd, "help_metavar_style", None):
+            cmd.help_metavar_style = self.help_metavar_style
         if not getattr(cmd, "help_options_custom_styles", None):
             cmd.help_options_custom_styles = self.help_options_custom_styles
 
