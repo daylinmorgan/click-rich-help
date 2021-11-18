@@ -1,12 +1,10 @@
 import click
 
-from click_rich_help import HelpColorsException, HelpColorsGroup
+from click_rich_help import HelpStylesException, HelpStylesGroup
 
 
 def test_basic_group(runner):
-    @click.command(
-        cls=HelpColorsGroup, help_headers_style="yellow", help_options_style="green"
-    )
+    @click.command(cls=HelpStylesGroup, headers_style="yellow", options_style="green")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -23,9 +21,7 @@ def test_basic_group(runner):
 
 
 def test_basic_command(runner):
-    @click.group(
-        cls=HelpColorsGroup, help_headers_style="yellow", help_options_style="green"
-    )
+    @click.group(cls=HelpStylesGroup, headers_style="yellow", options_style="green")
     def cli():
         pass
 
@@ -58,21 +54,19 @@ def test_basic_command(runner):
 
 
 def test_unknown_color(runner):
-    @click.command(cls=HelpColorsGroup, help_headers_style="unknwnstyle")
+    @click.command(cls=HelpStylesGroup, headers_style="unknwnstyle")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
 
     result = runner.invoke(cli, ["--help"], color=True)
     assert result.exception
-    assert isinstance(result.exception, HelpColorsException)
+    assert isinstance(result.exception, HelpStylesException)
     assert str(result.exception) == "Unknown style unknwnstyle"
 
 
 def test_env_no_color(runner):
-    @click.command(
-        cls=HelpColorsGroup, help_headers_style="yellow", help_options_style="green"
-    )
+    @click.command(cls=HelpStylesGroup, headers_style="yellow", options_style="green")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -90,10 +84,10 @@ def test_env_no_color(runner):
 
 def test_basic_metavar(runner):
     @click.command(
-        cls=HelpColorsGroup,
-        help_headers_style="yellow",
-        help_options_style="green",
-        help_metavar_style="red",
+        cls=HelpStylesGroup,
+        headers_style="yellow",
+        options_style="green",
+        metavar_style="red",
     )
     @click.option("--name", help="The person to greet.")
     def cli(count):
@@ -112,10 +106,10 @@ def test_basic_metavar(runner):
 
 def test_custom_metavar(runner):
     @click.command(
-        cls=HelpColorsGroup,
-        help_headers_style="yellow",
-        help_options_style="green",
-        help_metavar_style="red",
+        cls=HelpStylesGroup,
+        headers_style="yellow",
+        options_style="green",
+        metavar_style="red",
     )
     @click.option("--first-name", help="The person's first name.", metavar="<name>")
     @click.option("--last-name", help="The person's last name.")
@@ -136,10 +130,10 @@ def test_custom_metavar(runner):
 
 def test_custom_metavar_choice(runner):
     @click.command(
-        cls=HelpColorsGroup,
-        help_headers_style="yellow",
-        help_options_style="green",
-        help_metavar_style="red",
+        cls=HelpStylesGroup,
+        headers_style="yellow",
+        options_style="green",
+        metavar_style="red",
     )
     @click.option(
         "--name",

@@ -1,19 +1,15 @@
 import click
 import pytest
 
-from click_rich_help import HelpColorsCommand, HelpColorsGroup
+from click_rich_help import HelpStylesCommand, HelpStylesGroup
 
 
 def test_command_custom_colors(runner):
-    @click.group(
-        cls=HelpColorsGroup, help_headers_style="yellow", help_options_style="green"
-    )
+    @click.group(cls=HelpStylesGroup, headers_style="yellow", options_style="green")
     def cli():
         pass
 
-    @cli.command(
-        cls=HelpColorsCommand, help_headers_style="red", help_options_style="blue"
-    )
+    @cli.command(cls=HelpStylesCommand, headers_style="red", options_style="blue")
     @click.option("--name", help="The person to greet.")
     def command(name):
         pass
@@ -31,10 +27,10 @@ def test_command_custom_colors(runner):
 
 def test_custom_option_color(runner):
     @click.group(
-        cls=HelpColorsGroup,
-        help_headers_style="yellow",
-        help_options_style="green",
-        help_options_custom_styles={"command1": "red"},
+        cls=HelpStylesGroup,
+        headers_style="yellow",
+        options_style="green",
+        options_custom_styles={"command1": "red"},
     )
     def cli():
         pass
@@ -63,10 +59,10 @@ def test_custom_option_color(runner):
 
 def test_option_color(runner):
     @click.group(
-        cls=HelpColorsGroup,
-        help_headers_style="yellow",
-        help_options_style="green",
-        help_options_custom_styles={"--name": "red"},
+        cls=HelpStylesGroup,
+        headers_style="yellow",
+        options_style="green",
+        options_custom_styles={"--name": "red"},
     )
     def cli():
         pass
@@ -90,10 +86,10 @@ def test_option_color(runner):
 @pytest.mark.parametrize("option_name", ["-n", "--name", "-n,"])
 def test_multi_name_option_color(runner, option_name):
     @click.group(
-        cls=HelpColorsGroup,
-        help_headers_style="yellow",
-        help_options_style="green",
-        help_options_custom_styles={option_name: "red"},
+        cls=HelpStylesGroup,
+        headers_style="yellow",
+        options_style="green",
+        options_custom_styles={option_name: "red"},
     )
     def cli():
         pass
@@ -117,10 +113,10 @@ def test_multi_name_option_color(runner, option_name):
 @pytest.mark.parametrize("option_name", ["--shout", "--no-shout"])
 def test_flag_option_color(runner, option_name):
     @click.group(
-        cls=HelpColorsGroup,
-        help_headers_style="yellow",
-        help_options_style="green",
-        help_options_custom_styles={option_name: "red"},
+        cls=HelpStylesGroup,
+        headers_style="yellow",
+        options_style="green",
+        options_custom_styles={option_name: "red"},
     )
     def cli():
         pass

@@ -6,7 +6,7 @@ from rich.errors import MissingStyle
 console = Console(highlight=False)
 
 
-class HelpColorsException(Exception):
+class HelpStylesException(Exception):
     pass
 
 
@@ -21,13 +21,13 @@ def _get_rich_output(text, style):
         raise ValueError(f"Error capturing output for text: {text} and style: {style}")
 
 
-def _apply_rich(help_text):
+def _apply_rich(text):
     try:
         with console.capture() as capture:
-            console.print(help_text, end="")
+            console.print(text, end="")
         return capture.get()
     except MissingStyle:
-        raise ValueError(f"Error: error in help string {help_text}")
+        raise ValueError(f"Error: error in help string {text}")
 
 
 def _colorize(text, style=None, suffix=None):
@@ -36,7 +36,7 @@ def _colorize(text, style=None, suffix=None):
     try:
         return _get_rich_output(text, style) + (suffix or "")
     except ValueError:
-        raise HelpColorsException(f"Unknown style {style}")
+        raise HelpStylesException(f"Unknown style {style}")
 
 
 def _extend_instance(obj, cls):

@@ -1,21 +1,21 @@
 from .core import (
-    HelpColorsCommand,
-    HelpColorsFormatter,
-    HelpColorsGroup,
-    HelpColorsMixin,
-    HelpColorsMultiCommand,
+    HelpStylesCommand,
+    HelpStylesFormatter,
+    HelpStylesGroup,
+    HelpStylesMixin,
+    HelpStylesMultiCommand,
 )
 from .decorators import version_option
-from .utils import HelpColorsException, _colorize
+from .utils import HelpStylesException, _colorize
 
 __all__ = [
-    "HelpColorsFormatter",
-    "HelpColorsMixin",
-    "HelpColorsGroup",
-    "HelpColorsCommand",
-    "HelpColorsMultiCommand",
+    "HelpStylesFormatter",
+    "HelpStylesMixin",
+    "HelpStylesGroup",
+    "HelpStylesCommand",
+    "HelpStylesMultiCommand",
     "_colorize",
-    "HelpColorsException",
+    "HelpStylesException",
     "version_option",
 ]
 
