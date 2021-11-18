@@ -41,20 +41,47 @@ class HelpColorsFormatter(click.HelpFormatter):
                 return self.options_custom_styles[opt]
         return self.options_style
 
-    def _extract_metavar(self, option_name):
-        return self.options_regex.sub("", option_name).replace(",", "").strip()
+    def _extract_metavar_choices(self, option_name):
+        metavar = self.options_regex.sub("", option_name).replace(",", "").strip()
+
+        if metavar == "/":
+            return option_name
+        else:
+            return metavar
 
     def _write_definition(self, option_name):
-        if self.metavar_style:
-            metavar = self._extract_metavar(option_name).strip()
-            term = option_name.replace(metavar, "")
-            # don't apply to command
-            if not metavar == option_name:
-                return _colorize(term, self._pick_color(term)) + _colorize(
-                    metavar, (self.metavar_style)
+        metavar = self._extract_metavar_choices(option_name)
+        if not metavar == option_name:
+            if "[" in metavar and "]" in metavar:
+                choices = metavar.split("[")[1].split("]")[0].split("|")
+                colorized_metavar = "[{}]".format(
+                    "|".join(
+                        [
+                            _colorize(
+                                choice, (self.metavar_style or self.options_style)
+                            )
+                            for choice in choices
+                        ]
+                    )
+                )
+            else:
+                colorized_metavar = _colorize(
+                    metavar, (self.metavar_style or self.options_style)
                 )
 
-        return _colorize(option_name, self._pick_color(option_name))
+            term = option_name.replace(metavar, "")
+            return _colorize(term, self._pick_color(term)) + colorized_metavar
+
+        elif "/" in option_name:
+            return " / ".join(
+                [
+                    _colorize(flag.strip(), self._pick_color(option_name))
+                    for flag in option_name.split("/")
+                ]
+            )
+        else:
+
+            return _colorize(option_name, self._pick_color(option_name))
 
     def write_usage(self, prog, args="", prefix="Usage"):
         colorized_prefix = _colorize(prefix, style=self.headers_style, suffix=": ")

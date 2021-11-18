@@ -17,7 +17,7 @@ def test_basic_group(runner):
         "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
         "",
         "\x1b[33mOptions\x1b[0m:",
-        "  \x1b[32m--name TEXT\x1b[0m  The person to greet.",
+        "  \x1b[32m--name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
         "  \x1b[32m--help\x1b[0m       Show this message and exit.",
     ]
 
@@ -52,7 +52,7 @@ def test_basic_command(runner):
         "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
         "",
         "\x1b[33mOptions\x1b[0m:",
-        "  \x1b[32m--name TEXT\x1b[0m  The person to greet.",
+        "  \x1b[32m--name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
         "  \x1b[32m--help\x1b[0m       Show this message and exit.",
     ]
 
@@ -88,7 +88,7 @@ def test_env_no_color(runner):
     ]
 
 
-def test_metavar_basic(runner):
+def test_basic_metavar(runner):
     @click.command(
         cls=HelpColorsGroup,
         help_headers_style="yellow",
@@ -131,4 +131,30 @@ def test_custom_metavar(runner):
         "  \x1b[32m--first-name \x1b[0m\x1b[31m<name>\x1b[0m  The person's first name.",
         "  \x1b[32m--last-name \x1b[0m\x1b[31mTEXT\x1b[0m     The person's last name.",
         "  \x1b[32m--help\x1b[0m               Show this message and exit.",
+    ]
+
+
+def test_custom_metavar_choice(runner):
+    @click.command(
+        cls=HelpColorsGroup,
+        help_headers_style="yellow",
+        help_options_style="green",
+        help_metavar_style="red",
+    )
+    @click.option(
+        "--name",
+        help="either billy or bob",
+        type=click.Choice(["Billy", "Bob"]),
+    )
+    def cli(count):
+        pass
+
+    result = runner.invoke(cli, ["--help"], color=True)
+    assert not result.exception
+    assert result.output.splitlines() == [
+        "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
+        "",
+        "\x1b[33mOptions\x1b[0m:",
+        "  \x1b[32m--name \x1b[0m[\x1b[31mBilly\x1b[0m|\x1b[31mBob\x1b[0m]  either billy or bob",
+        "  \x1b[32m--help\x1b[0m              Show this message and exit.",
     ]

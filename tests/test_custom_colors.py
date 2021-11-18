@@ -24,7 +24,7 @@ def test_command_custom_colors(runner):
         "\x1b[31mUsage\x1b[0m: cli command [OPTIONS]",
         "",
         "\x1b[31mOptions\x1b[0m:",
-        "  \x1b[34m--name TEXT\x1b[0m  The person to greet.",
+        "  \x1b[34m--name \x1b[0m\x1b[34mTEXT\x1b[0m  The person to greet.",
         "  \x1b[34m--help\x1b[0m       Show this message and exit.",
     ]
 
@@ -82,7 +82,7 @@ def test_option_color(runner):
         "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
         "",
         "\x1b[33mOptions\x1b[0m:",
-        "  \x1b[31m--name TEXT\x1b[0m  The person to greet.",
+        "  \x1b[31m--name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
         "  \x1b[32m--help\x1b[0m       Show this message and exit.",
     ]
 
@@ -109,7 +109,7 @@ def test_multi_name_option_color(runner, option_name):
         "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
         "",
         "\x1b[33mOptions\x1b[0m:",
-        "  \x1b[31m-n, --name TEXT\x1b[0m  The person to greet.",
+        "  \x1b[31m-n, --name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
         "  \x1b[32m--help\x1b[0m           Show this message and exit.",
     ]
 
@@ -136,6 +136,6 @@ def test_flag_option_color(runner, option_name):
         "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
         "",
         "\x1b[33mOptions\x1b[0m:",
-        "  \x1b[31m--shout / --no-shout\x1b[0m",
+        "  \x1b[31m--shout\x1b[0m / \x1b[31m--no-shout\x1b[0m",
         "  \x1b[32m--help\x1b[0m                Show this message and exit.",
     ]
