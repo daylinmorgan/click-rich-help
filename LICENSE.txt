@@ -2,9 +2,6 @@ MIT License
 
 Copyright (c) 2021 Daylin Morgan
 
-HelpColorsFormatter and associated code modified from click-help-colors@v0.9.1
-
-Copyright (c) 2016 Roman Tonkonozhko
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
