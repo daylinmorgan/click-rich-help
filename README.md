@@ -11,7 +11,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/daylinmorgan/click-rich-help">
-    <img src="https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/logo.svg" alt="Logo" width=400 >
+    <img src="https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/logo.png" alt="Logo" width=400 >
   </a>
 
 <h2 align="center">click-rich-help</h2>
@@ -35,13 +35,11 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
@@ -92,7 +90,7 @@ conda install -c conda-forge click-rich-help
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-The syntax for usage is not much different than [click-help-colors](https://github.com/click-contrib/click-help-colors) on which this project it based.
+The syntax for usage is not much different than [click-help-colors](https://github.com/click-contrib/click-help-colors) on which this project is based.
 
 You apply the class to `click` groups or commands like so:
 
@@ -113,7 +111,7 @@ This was intentionally changed to reflect the addition of other ANSII styles, i.
 This isn't the only significant change though! Now there is also support for coloring metavars.
 If no color is specified than they will default to the color of the options.
 
-In addition any string that would usually be passed to click will be parsed by `rich` to apply the needed colors in styles.
+In addition any string that would usually be passed to click will be parsed by `rich` to apply the needed colors and styles.
 
 This means you can use rich syntax in `click.option()` decorators as well as in docstrings of commands. For instance, you can have something like below.
 
