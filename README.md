@@ -11,7 +11,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/daylinmorgan/click-rich-help">
-    <img src="assets/logo.svg" alt="Logo" width=400 >
+    <img src="https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/logo.svg" alt="Logo" width=400 >
   </a>
 
 <h2 align="center">click-rich-help</h2>
@@ -56,7 +56,7 @@
 
 Click the screenshot below to see it in action!
 
-<a href="https://asciinema.org/a/81psoVhEc6F568fZppb6qKBVb"> <img src="assets/screenshot.png" width=500> </a>
+<a href="https://asciinema.org/a/81psoVhEc6F568fZppb6qKBVb"> <img src="https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/screenshot.png" width=500> </a>
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
 If you were to view the `--help` of the above command you should see the below output.
 
-![option_color](assets/option_example.png)
+![option_color](https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/option_example.png)
 
 
 To preview the included example module in your own terminal you can use two methods:
