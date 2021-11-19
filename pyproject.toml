@@ -7,7 +7,7 @@ repository = "https://github.com/daylinmorgan/click-rich-help"
 readme = "README.md"
 license = "MIT"
 include = [
-    "LICENSE",
+    "LICENSE.txt"
 ]
 
 [tool.poetry.dependencies]

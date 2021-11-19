@@ -185,13 +185,6 @@ Then follow the below steps
 4. Push to the Branch (`git push origin feat/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE`  for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -236,4 +229,4 @@ Project Link: [https://github.com/daylinmorgan/click-rich-help](https://github.c
 [issues-shield]: https://img.shields.io/github/issues/daylinmorgan/click-rich-help.svg?style=flat
 [issues-url]: https://github.com/daylinmorgan/click-rich-help/issues
 [license-shield]: https://img.shields.io/github/license/daylinmorgan/click-rich-help.svg?style=flat
-[license-url]: https://github.com/daylinmorgan/click-rich-help/blob/master/LICENSE.txt
+[license-url]: https://github.com/daylinmorgan/click-rich-help/blob/main/LICENSE.txt
