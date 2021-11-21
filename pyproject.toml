@@ -21,6 +21,7 @@ flake8 = "^4.0.1"
 isort = "^5.10.1"
 pre-commit = "^2.15.0"
 pytest = "^6.2.5"
+mypy = "^0.910"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -32,3 +33,14 @@ multi_line_output = 3
 
 [tool.pytest.ini_options]
 addopts = "-s"
+
+[tool.mypy]
+color_output = true
+error_summary = true
+disallow_any_generics = true
+disallow_any_unimported = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
