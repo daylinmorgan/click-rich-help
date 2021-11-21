@@ -2,7 +2,6 @@ from .core import (
     HelpStylesCommand,
     HelpStylesFormatter,
     HelpStylesGroup,
-    HelpStylesMixin,
     HelpStylesMultiCommand,
 )
 from .decorators import version_option

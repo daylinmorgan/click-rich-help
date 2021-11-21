@@ -1,19 +1,21 @@
 import re
+from typing import Callable
 
 from click import version_option as click_version_option
+from click.decorators import FC
 
 from .utils import _colorize
 
 
 def version_option(
-    version=None,
-    prog_name=None,
-    message="%(prog)s, version %(version)s",
-    message_style=None,
-    prog_name_style=None,
-    version_style=None,
-    **kwargs
-):
+    version: str = None,
+    prog_name: str = None,
+    message: str = "%(prog)s, version %(version)s",
+    message_style: str = None,
+    prog_name_style: str = None,
+    version_style: str = None,
+    **kwargs: str,
+) -> Callable[[FC], FC]:
     """
     :param prog_name_style: style of the prog_name.
     :param version_style: style of the version.
