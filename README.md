@@ -52,9 +52,9 @@
 
 
 
-Click the screenshot below to see it in action!
+Click the on the cast below to see it in action!
 
-<a href="https://asciinema.org/a/81psoVhEc6F568fZppb6qKBVb"> <img src="https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/screenshot.png" width=500> </a>
+<a href="https://asciinema.org/a/lKXkDlwBi1pHLAbfyO6FZZp9a"> <img src="https://asciinema.org/a/lKXkDlwBi1pHLAbfyO6FZZp9a.svg" width=500> </a>
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -76,11 +76,11 @@ Click the screenshot below to see it in action!
 
 ### Installation
 
+with pip:
 ``` bash
 pip install click-rich-help
 ```
-
-future releases should allow install via conda-forge
+with conda/mamba:
 ```bash
 conda install -c conda-forge click-rich-help
 ```
