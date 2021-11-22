@@ -96,7 +96,7 @@ You apply the class to `click` groups or commands like so:
 
 ```python
 @click.group(
-    cls=HelpStylesGroup,
+    cls=StyledGroup,
     headers_style="yellow bold",
     options_style="cyan italic",
     metavar_style="red bold",
@@ -117,10 +117,10 @@ This means you can use rich syntax in `click.option()` decorators as well as in 
 
 ```python
 import click
-from click_rich_help import HelpStylesCommand
+from click_rich_help import StyledCommand
 
 @click.command(
-    cls=HelpStylesCommand,
+    cls=StyledCommand,
     options_style="italic cyan",
     headers_style="bold yellow"
 )

@@ -1,8 +1,8 @@
 from .core import (
-    HelpStylesCommand,
+    StyledCommand,
     HelpStylesFormatter,
-    HelpStylesGroup,
-    HelpStylesMultiCommand,
+    StyledGroup,
+    StyledMultiCommand,
 )
 from .decorators import version_option
 from .utils import HelpStylesException, _colorize
@@ -10,9 +10,9 @@ from .utils import HelpStylesException, _colorize
 __all__ = [
     "HelpStylesFormatter",
     "HelpStylesMixin",
-    "HelpStylesGroup",
-    "HelpStylesCommand",
-    "HelpStylesMultiCommand",
+    "StyledGroup",
+    "StyledCommand",
+    "StyledMultiCommand",
     "_colorize",
     "HelpStylesException",
     "version_option",

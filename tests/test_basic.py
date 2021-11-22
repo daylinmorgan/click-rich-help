@@ -1,10 +1,10 @@
 import click
 
-from click_rich_help import HelpStylesException, HelpStylesGroup
+from click_rich_help import HelpStylesException, StyledGroup
 
 
 def test_basic_group(runner):
-    @click.command(cls=HelpStylesGroup, headers_style="yellow", options_style="green")
+    @click.command(cls=StyledGroup, headers_style="yellow", options_style="green")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -21,7 +21,7 @@ def test_basic_group(runner):
 
 
 def test_basic_command(runner):
-    @click.group(cls=HelpStylesGroup, headers_style="yellow", options_style="green")
+    @click.group(cls=StyledGroup, headers_style="yellow", options_style="green")
     def cli():
         pass
 
@@ -54,7 +54,7 @@ def test_basic_command(runner):
 
 
 def test_unknown_color(runner):
-    @click.command(cls=HelpStylesGroup, headers_style="unknwnstyle")
+    @click.command(cls=StyledGroup, headers_style="unknwnstyle")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -66,7 +66,7 @@ def test_unknown_color(runner):
 
 
 def test_env_no_color(runner):
-    @click.command(cls=HelpStylesGroup, headers_style="yellow", options_style="green")
+    @click.command(cls=StyledGroup, headers_style="yellow", options_style="green")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -84,7 +84,7 @@ def test_env_no_color(runner):
 
 def test_basic_metavar(runner):
     @click.command(
-        cls=HelpStylesGroup,
+        cls=StyledGroup,
         headers_style="yellow",
         options_style="green",
         metavar_style="red",
@@ -106,7 +106,7 @@ def test_basic_metavar(runner):
 
 def test_custom_metavar(runner):
     @click.command(
-        cls=HelpStylesGroup,
+        cls=StyledGroup,
         headers_style="yellow",
         options_style="green",
         metavar_style="red",
@@ -130,7 +130,7 @@ def test_custom_metavar(runner):
 
 def test_custom_metavar_choice(runner):
     @click.command(
-        cls=HelpStylesGroup,
+        cls=StyledGroup,
         headers_style="yellow",
         options_style="green",
         metavar_style="red",

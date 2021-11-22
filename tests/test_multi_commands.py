@@ -1,6 +1,6 @@
 import click
 
-from click_rich_help import HelpStylesGroup, HelpStylesMultiCommand
+from click_rich_help import StyledGroup, StyledMultiCommand
 
 
 def test_multi_command(runner):
@@ -13,7 +13,7 @@ def test_multi_command(runner):
     def command1(count):
         click.echo("command 1")
 
-    @click.group(cls=HelpStylesGroup, headers_style="red", options_style="blue")
+    @click.group(cls=StyledGroup, headers_style="red", options_style="blue")
     def cmd2():
         pass
 
@@ -22,7 +22,7 @@ def test_multi_command(runner):
     def command2(name):
         click.echo("command 2")
 
-    class MyCLI(HelpStylesMultiCommand):
+    class MyCLI(StyledMultiCommand):
         def list_commands(self, ctx):
             return ["cmd1", "cmd2"]
 

@@ -1,10 +1,10 @@
 import click
 
-from click_rich_help import HelpStylesCommand
+from click_rich_help import StyledCommand
 
 
 @click.command(
-    cls=HelpStylesCommand, options_style="italic cyan", headers_style="bold yellow"
+    cls=StyledCommand, options_style="italic cyan", headers_style="bold yellow"
 )
 @click.option("--count", default=1, help="[red]Number[/red] of greetings.")
 @click.option("--name", prompt="Your name", help="The person to greet.")

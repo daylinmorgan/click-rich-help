@@ -110,7 +110,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         super(HelpStylesFormatter, self).write_text(colorized_text)
 
 
-class HelpStylesGroup(click.Group):
+class StyledGroup(click.Group):
     def __init__(
         self,
         headers_style: str = None,
@@ -124,10 +124,10 @@ class HelpStylesGroup(click.Group):
         self.options_style = options_style
         self.metavar_style = metavar_style
         self.options_custom_styles = options_custom_styles
-        super(HelpStylesGroup, self).__init__(*args, **kwargs)
+        super(StyledGroup, self).__init__(*args, **kwargs)
 
     @classmethod
-    def from_group(cls, group: click.Group) -> "HelpStylesGroup":
+    def from_group(cls, group: click.Group) -> "StyledGroup":
         styled_group = cls()
 
         for key, value in group.__dict__.items():
@@ -149,25 +149,25 @@ class HelpStylesGroup(click.Group):
     def command(
         self, *args: Any, **kwargs: Any
     ) -> Callable[[Callable[..., Any]], click.Command]:
-        kwargs.setdefault("cls", HelpStylesCommand)
+        kwargs.setdefault("cls", StyledCommand)
         kwargs.setdefault("headers_style", self.headers_style)
         kwargs.setdefault("options_style", self.options_style)
         kwargs.setdefault("metavar_style", self.metavar_style)
         kwargs.setdefault("options_custom_styles", self.options_custom_styles)
-        return super(HelpStylesGroup, self).command(*args, **kwargs)
+        return super(StyledGroup, self).command(*args, **kwargs)
 
     def group(
         self, *args: Any, **kwargs: Any
     ) -> Callable[[Callable[..., Any]], click.Group]:
-        kwargs.setdefault("cls", HelpStylesGroup)
+        kwargs.setdefault("cls", StyledGroup)
         kwargs.setdefault("headers_style", self.headers_style)
         kwargs.setdefault("options_style", self.options_style)
         kwargs.setdefault("metavar_style", self.metavar_style)
         kwargs.setdefault("options_custom_styles", self.options_custom_styles)
-        return super(HelpStylesGroup, self).group(*args, **kwargs)
+        return super(StyledGroup, self).group(*args, **kwargs)
 
 
-class HelpStylesCommand(click.Command):
+class StyledCommand(click.Command):
     def __init__(
         self,
         headers_style: str = None,
@@ -181,10 +181,10 @@ class HelpStylesCommand(click.Command):
         self.options_style = options_style
         self.metavar_style = metavar_style
         self.options_custom_styles = options_custom_styles
-        super(HelpStylesCommand, self).__init__(*args, **kwargs)
+        super(StyledCommand, self).__init__(*args, **kwargs)
 
     @classmethod
-    def from_command(cls, command: click.Command) -> "HelpStylesCommand":
+    def from_command(cls, command: click.Command) -> "StyledCommand":
         styled_command = cls()
         for key, value in command.__dict__.items():
             styled_command.__dict__[key] = value
@@ -203,7 +203,7 @@ class HelpStylesCommand(click.Command):
         return formatter.getvalue().rstrip("\n")
 
 
-class HelpStylesMultiCommand(click.MultiCommand):
+class StyledMultiCommand(click.MultiCommand):
     def __init__(
         self,
         headers_style: str = None,
@@ -217,7 +217,7 @@ class HelpStylesMultiCommand(click.MultiCommand):
         self.options_style = options_style
         self.metavar_style = metavar_style
         self.options_custom_styles = options_custom_styles
-        super(HelpStylesMultiCommand, self).__init__(*args, **kwargs)
+        super(StyledMultiCommand, self).__init__(*args, **kwargs)
 
     def get_help(self, ctx: click.Context) -> str:
         formatter = HelpStylesFormatter(
@@ -235,14 +235,14 @@ class HelpStylesMultiCommand(click.MultiCommand):
         self, ctx: click.Context, args: List[str]
     ) -> Tuple[Optional[str], Optional[click.Command], List[str]]:
 
-        cmd_name, cmd, args[1:] = super(HelpStylesMultiCommand, self).resolve_command(
+        cmd_name, cmd, args[1:] = super(StyledMultiCommand, self).resolve_command(
             ctx, args
         )
 
         if isinstance(cmd, click.Group):
-            cmd = HelpStylesGroup.from_group(cmd)
+            cmd = StyledGroup.from_group(cmd)
         elif isinstance(cmd, click.Command):
-            cmd = HelpStylesCommand.from_command(cmd)
+            cmd = StyledCommand.from_command(cmd)
 
         if cmd:
             if not getattr(cmd, "headers_style", None):

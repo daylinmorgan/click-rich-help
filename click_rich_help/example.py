@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
 
-from click_rich_help import HelpStylesCommand, HelpStylesGroup
+from click_rich_help import StyledCommand, StyledGroup
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -68,7 +68,7 @@ def print_syntax(
 
 
 @click.group(
-    cls=HelpStylesGroup,
+    cls=StyledGroup,
     headers_style="yellow bold",
     options_style="cyan italic",
     metavar_style="red bold",
@@ -113,7 +113,7 @@ def cmd1(count: int, pretty: bool) -> None:
     console.print("Try again with -h")
 
 
-@cli.command(cls=HelpStylesCommand, options_style="green")
+@cli.command(cls=StyledCommand, options_style="green")
 @click.option("--name", help="some string")
 @click.option("--choices", help="make a choice", type=click.Choice(["yay", "nay"]))
 @click.option("--shout/--no-shout", help="shout or don't")
@@ -134,7 +134,7 @@ def cmd2(name: str, choices: str, shout: bool) -> None:
 
 
 @cli.command(
-    cls=HelpStylesCommand,
+    cls=StyledCommand,
     metavar_style="strike yellow",
     options_custom_styles={"--string": "bold red", "--style": "u green"},
 )
