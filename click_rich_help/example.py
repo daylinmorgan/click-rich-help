@@ -11,13 +11,13 @@ from click_rich_help import HelpStylesCommand, HelpStylesGroup
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
-def get_command_line_no() -> Dict[Optional[str], Optional[Tuple[int,int]]]:
+def get_command_line_no() -> Dict[Optional[str], Optional[Tuple[int, int]]]:
     """get line numbers of commands for use in 'src'"""
     command: Optional[str] = None
     start: Optional[int] = None
     end: Optional[int] = None
     blanks: List[int] = []
-    cmd_lines: Dict[Optional[str], Optional[Tuple[int,int]]] = {}
+    cmd_lines: Dict[Optional[str], Optional[Tuple[int, int]]] = {}
     with Path(__file__).open("r") as f:
         for line_no, line in enumerate(f):
             if line == "\n":
@@ -50,7 +50,7 @@ def print_syntax(
     code_width: int = 90,
     expand: bool = False,
     theme: str = "monokai",
-)-> None:
+) -> None:
     console.print(
         Panel(
             Syntax.from_path(
@@ -103,7 +103,7 @@ def cli() -> None:
 @cli.command()
 @click.option("--count", default=1, help="some number")
 @click.option("--pretty", help="[red][underline]underlined[/] red text", is_flag=True)
-def cmd1(count: int, pretty:bool)-> None:
+def cmd1(count: int, pretty: bool) -> None:
     """[red bold]Command 1...try me[/]
 
     Look at that red text. CRAZY!
@@ -117,7 +117,7 @@ def cmd1(count: int, pretty:bool)-> None:
 @click.option("--name", help="some string")
 @click.option("--choices", help="make a choice", type=click.Choice(["yay", "nay"]))
 @click.option("--shout/--no-shout", help="shout or don't")
-def cmd2(name:str, choices:str, shout:bool)-> None:
+def cmd2(name: str, choices: str, shout: bool) -> None:
     """A command of the second variety
 
     You should never do this in a help message but you [b i cyan]could[/]
@@ -140,7 +140,7 @@ def cmd2(name:str, choices:str, shout:bool)-> None:
 )
 @click.option("--string", help="markup string to test with rich (use quotes!)")
 @click.option("--style", help="color/style to test")
-def test(string:str, style:str) -> None:
+def test(string: str, style: str) -> None:
     """Test a markup string or color/style
 
     Use [yellow]python -m rich.color [/]for full list of options
@@ -175,7 +175,7 @@ def test(string:str, style:str) -> None:
 @click.option(
     "--theme", help="pygments theme", default="monokai", metavar="<theme name>"
 )
-def src(command: str, theme:str) -> None:
+def src(command: str, theme: str) -> None:
     """View the source code for a given [yellow]COMMAND[/]
 
     [i]HINTS[/]:
