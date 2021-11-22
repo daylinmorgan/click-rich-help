@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 import click
 from rich.console import Console
@@ -10,9 +11,13 @@ from click_rich_help import HelpStylesCommand, HelpStylesGroup
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
-def get_command_line_no():
-    command, start, end = None, None, None
-    blanks, cmd_lines = [], {}
+def get_command_line_no() -> Dict[Optional[str], Optional[Tuple[int,int]]]:
+    """get line numbers of commands for use in 'src'"""
+    command: Optional[str] = None
+    start: Optional[int] = None
+    end: Optional[int] = None
+    blanks: List[int] = []
+    cmd_lines: Dict[Optional[str], Optional[Tuple[int,int]]] = {}
     with Path(__file__).open("r") as f:
         for line_no, line in enumerate(f):
             if line == "\n":
@@ -26,9 +31,10 @@ def get_command_line_no():
             if start and command:
                 if [line_no - 1, line_no] == blanks[-2:]:
                     end = line_no
-            if end:
+            if start and end:
                 cmd_lines[command] = (start, end)
                 command, start, end = None, None, None
+
     cmd_lines["all"] = None
 
     return cmd_lines
@@ -38,13 +44,13 @@ console = Console()
 
 
 def print_syntax(
-    command,
-    line_range=None,
-    background_color=None,
-    code_width=90,
-    expand=False,
-    theme="monokai",
-):
+    command: str,
+    line_range: Tuple[int, int] = None,
+    background_color: str = None,
+    code_width: int = 90,
+    expand: bool = False,
+    theme: str = "monokai",
+)-> None:
     console.print(
         Panel(
             Syntax.from_path(
@@ -68,7 +74,7 @@ def print_syntax(
     metavar_style="red bold",
     context_settings=CONTEXT_SETTINGS,
 )
-def cli():
+def cli() -> None:
     """[underline]Click-rich-help example[/]
 
     Welcome to click-rich-help, where we can
@@ -97,7 +103,7 @@ def cli():
 @cli.command()
 @click.option("--count", default=1, help="some number")
 @click.option("--pretty", help="[red][underline]underlined[/] red text", is_flag=True)
-def cmd1(count, pretty):
+def cmd1(count: int, pretty:bool)-> None:
     """[red bold]Command 1...try me[/]
 
     Look at that red text. CRAZY!
@@ -111,7 +117,7 @@ def cmd1(count, pretty):
 @click.option("--name", help="some string")
 @click.option("--choices", help="make a choice", type=click.Choice(["yay", "nay"]))
 @click.option("--shout/--no-shout", help="shout or don't")
-def cmd2(name, choices, shout):
+def cmd2(name:str, choices:str, shout:bool)-> None:
     """A command of the second variety
 
     You should never do this in a help message but you [b i cyan]could[/]
@@ -134,7 +140,7 @@ def cmd2(name, choices, shout):
 )
 @click.option("--string", help="markup string to test with rich (use quotes!)")
 @click.option("--style", help="color/style to test")
-def test(string, style):
+def test(string:str, style:str) -> None:
     """Test a markup string or color/style
 
     Use [yellow]python -m rich.color [/]for full list of options
@@ -169,7 +175,7 @@ def test(string, style):
 @click.option(
     "--theme", help="pygments theme", default="monokai", metavar="<theme name>"
 )
-def src(command, theme):
+def src(command: str, theme:str) -> None:
     """View the source code for a given [yellow]COMMAND[/]
 
     [i]HINTS[/]:
