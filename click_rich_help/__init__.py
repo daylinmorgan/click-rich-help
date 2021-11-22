@@ -1,15 +1,9 @@
-from .core import (
-    StyledCommand,
-    HelpStylesFormatter,
-    StyledGroup,
-    StyledMultiCommand,
-)
+from .core import HelpStylesFormatter, StyledCommand, StyledGroup, StyledMultiCommand
 from .decorators import version_option
 from .utils import HelpStylesException, _colorize
 
 __all__ = [
     "HelpStylesFormatter",
-    "HelpStylesMixin",
     "StyledGroup",
     "StyledCommand",
     "StyledMultiCommand",
@@ -19,4 +13,4 @@ __all__ = [
 ]
 
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
