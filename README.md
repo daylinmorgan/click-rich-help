@@ -5,7 +5,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-
+[![CircleCI][circleci-shield]][circleci-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -228,3 +228,5 @@ Project Link: [https://github.com/daylinmorgan/click-rich-help](https://github.c
 [issues-url]: https://github.com/daylinmorgan/click-rich-help/issues
 [license-shield]: https://img.shields.io/github/license/daylinmorgan/click-rich-help.svg?style=flat
 [license-url]: https://github.com/daylinmorgan/click-rich-help/blob/main/LICENSE.txt
+[circleci-shield]: https://img.shields.io/circleci/build/gh/daylinmorgan/click-rich-help?style=flat
+[circleci-url]: https://img.shields.io/circleci/build/gh/daylinmorgan/click-rich-help
