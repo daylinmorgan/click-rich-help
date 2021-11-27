@@ -14,7 +14,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build_test: 
+  build_test:
     docker:
       - image: cimg/python:3.8
     steps:
@@ -40,7 +40,7 @@ jobs:
             poetry publish --build
 
 workflows:
-  build_test_publish: 
+  build_test_publish:
     jobs:
       - build_test
       - pypi_publish:
@@ -51,4 +51,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /v^\d+\.\d+\.\d+$/
-
