@@ -14,6 +14,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         headers_style: str = None,
         options_style: str = None,
         metavar_style: str = None,
+        doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
         *args: Any,
         **kwargs: Any
@@ -21,6 +22,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
+        self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
         super(HelpStylesFormatter, self).__init__(*args, **kwargs)
 
@@ -100,13 +102,22 @@ class HelpStylesFormatter(click.HelpFormatter):
         self, rows: Sequence[Tuple[str, str]], col_max: int = 30, col_spacing: int = 2
     ) -> None:
         colorized_rows: Sequence[Tuple[str, str]] = [
-            (self._write_definition(row[0]), _apply_rich(row[1])) for row in rows
+            (
+                self._write_definition(row[0]),
+                _colorize(row[1], self.doc_style)
+                if self.doc_style
+                else _apply_rich(row[1]),
+            )
+            for row in rows
         ]
         super(HelpStylesFormatter, self).write_dl(colorized_rows, col_max, col_spacing)
 
     def write_text(self, text: str) -> None:
 
-        colorized_text = _apply_rich(text)
+        if self.doc_style:
+            colorized_text = _colorize(text, style=self.doc_style)
+        else:
+            colorized_text = _apply_rich(text)
         super(HelpStylesFormatter, self).write_text(colorized_text)
 
 
@@ -116,6 +127,7 @@ class StyledGroup(click.Group):
         headers_style: str = None,
         options_style: str = None,
         metavar_style: str = None,
+        doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
         *args: Any,
         **kwargs: Any
@@ -123,6 +135,7 @@ class StyledGroup(click.Group):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
+        self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
         super(StyledGroup, self).__init__(*args, **kwargs)
 
@@ -141,6 +154,7 @@ class StyledGroup(click.Group):
             headers_style=self.headers_style,
             options_style=self.options_style,
             metavar_style=self.metavar_style,
+            doc_style=self.doc_style,
             options_custom_styles=self.options_custom_styles,
         )
         self.format_help(ctx, formatter)
@@ -153,6 +167,7 @@ class StyledGroup(click.Group):
         kwargs.setdefault("headers_style", self.headers_style)
         kwargs.setdefault("options_style", self.options_style)
         kwargs.setdefault("metavar_style", self.metavar_style)
+        kwargs.setdefault("doc_style", self.doc_style)
         kwargs.setdefault("options_custom_styles", self.options_custom_styles)
         return super(StyledGroup, self).command(*args, **kwargs)
 
@@ -163,6 +178,7 @@ class StyledGroup(click.Group):
         kwargs.setdefault("headers_style", self.headers_style)
         kwargs.setdefault("options_style", self.options_style)
         kwargs.setdefault("metavar_style", self.metavar_style)
+        kwargs.setdefault("doc_style", self.doc_style)
         kwargs.setdefault("options_custom_styles", self.options_custom_styles)
         return super(StyledGroup, self).group(*args, **kwargs)
 
@@ -173,6 +189,7 @@ class StyledCommand(click.Command):
         headers_style: str = None,
         options_style: str = None,
         metavar_style: str = None,
+        doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
         *args: Any,
         **kwargs: Any
@@ -180,6 +197,7 @@ class StyledCommand(click.Command):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
+        self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
         super(StyledCommand, self).__init__(*args, **kwargs)
 
@@ -197,6 +215,7 @@ class StyledCommand(click.Command):
             headers_style=self.headers_style,
             options_style=self.options_style,
             metavar_style=self.metavar_style,
+            doc_style=self.doc_style,
             options_custom_styles=self.options_custom_styles,
         )
         self.format_help(ctx, formatter)
@@ -209,6 +228,7 @@ class StyledMultiCommand(click.MultiCommand):
         headers_style: str = None,
         options_style: str = None,
         metavar_style: str = None,
+        doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
         *args: Any,
         **kwargs: Any
@@ -216,6 +236,7 @@ class StyledMultiCommand(click.MultiCommand):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
+        self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
         super(StyledMultiCommand, self).__init__(*args, **kwargs)
 
@@ -226,6 +247,7 @@ class StyledMultiCommand(click.MultiCommand):
             headers_style=self.headers_style,
             options_style=self.options_style,
             metavar_style=self.metavar_style,
+            doc_style=self.doc_style,
             options_custom_styles=self.options_custom_styles,
         )
         self.format_help(ctx, formatter)
@@ -251,6 +273,8 @@ class StyledMultiCommand(click.MultiCommand):
                 cmd.options_style = self.options_style
             if not getattr(cmd, "metavar_style", None):
                 cmd.metavar_style = self.metavar_style
+            if not getattr(cmd, "doc_style", None):
+                cmd.doc_style = self.doc_style
             if not getattr(cmd, "options_custom_styles", None):
                 cmd.options_custom_styles = self.options_custom_styles
 
