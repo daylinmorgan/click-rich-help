@@ -54,7 +54,7 @@
 
 Click the on the cast below to see it in action!
 
-<a href="https://asciinema.org/a/lKXkDlwBi1pHLAbfyO6FZZp9a"> <img src="https://asciinema.org/a/lKXkDlwBi1pHLAbfyO6FZZp9a.svg" width=500> </a>
+<a href="https://asciinema.org/a/LalOekTfxzUKVyt9pxxwgb0wi"> <img src="https://asciinema.org/a/lKXkDlwBi1pHLAbfyO6FZZp9a.svg" width=500> </a>
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -140,6 +140,7 @@ If you were to view the `--help` of the above command you should see the below o
 
 ![option_color](https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/option_example.png)
 
+Lastly, there is also support for styling all doc/help strings with the `doc_style` attribute.
 
 To preview the included example module in your own terminal you can use two methods:
 
