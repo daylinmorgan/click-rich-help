@@ -42,7 +42,10 @@ jobs:
 workflows:
   build_test_publish:
     jobs:
-      - build_test
+      - build_test:
+          filters:
+            tags:
+              only: /.*/
       - pypi_publish:
           requires:
             - build_test
@@ -50,4 +53,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /v^\d+\.\d+\.\d+$/
+              only: /^v\d+\.\d+\.\d+$/

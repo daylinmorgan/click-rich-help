@@ -172,7 +172,7 @@ def test(string: str, style: str) -> None:
 
 @cli.command(cls=StyledCommand, headers_style="green", doc_style="green")
 @click.option("--name", help="some string")
-def cmd3(name):
+def cmd3(name:str) -> None:
     """why is doc_style important?
 
     The main reason this parameter exists is to apply a default
