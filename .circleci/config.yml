@@ -35,7 +35,7 @@ jobs:
       - python/install-packages:
           pkg-manager: poetry
       - run:
-          command:
+          command: |
             poetry config pypi-token.pypi $PYPI_TOKEN
             poetry publish --build
 
