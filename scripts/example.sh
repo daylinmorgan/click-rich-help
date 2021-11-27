@@ -8,13 +8,13 @@
 base_command="python -m click_rich_help.example"
 SDELAY=2
 LDELAY=4
-sleep 2
+sleep 1
 clear
 
 play_command() {
 
     echo
-    echo $1 | pv -qL 10
+    echo $1 | pv -qL 20
     echo
     sleep $SDELAY
     eval "$1"
@@ -33,6 +33,9 @@ play_command "${base_command} cmd1 -h"
 
 echo "Did that say something about cmd2, let's try it now"
 play_command "${base_command} cmd2 -h"
+
+echo "Before we test our own commands let me double check cmd3"
+play_command "${base_command} cmd3 -h"
 
 echo "Hm Let's test some strings and styles"
 play_command "${base_command} test --string '[i blue]blue and italic[/i blue] not blue or italic' --style 'bold grey0 on red'"

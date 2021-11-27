@@ -170,6 +170,21 @@ def test(string: str, style: str) -> None:
         console.print(f' "{style}" ')
 
 
+@cli.command(cls=StyledCommand, headers_style="green", doc_style="green")
+@click.option("--name", help="some string")
+def cmd3(name):
+    """why is doc_style important?
+
+    The main reason this parameter exists is to apply a default
+    styling across both short and long form doc strings in your app.
+
+    Imporantly one can still colorize the docstring by using the
+    [bold italic red]markup style of rich[/].
+    """
+
+    console.print("Try again with -h")
+
+
 @cli.command()
 @click.argument("command")
 @click.option(
