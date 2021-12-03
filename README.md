@@ -187,15 +187,6 @@ Then follow the below steps
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Roadmap
-
-- [x] Integrated example module
-- [ ] Implement Type checking
-- [ ] Add option to color all help strings
-- [ ] CI
-	- [ ] test
-	- [ ] pypi
-
 <!-- CONTACT -->
 ## Contact
 
