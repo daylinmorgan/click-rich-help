@@ -50,7 +50,10 @@
 ## About The Project
 
 
+I wanted a simple python package to make my click app's help more readable.
 
+Since writing this package the more opinionated [rich-click](https://github.com/ewels/rich-click) has been written.
+If that output is more your speed, go check it out!
 
 Click the on the cast below to see it in action!
 
