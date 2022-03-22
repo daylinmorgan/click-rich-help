@@ -6,14 +6,12 @@ authors = ["Daylin Morgan <daylinmorgan@gmail.com>"]
 repository = "https://github.com/daylinmorgan/click-rich-help"
 readme = "README.md"
 license = "MIT"
-include = [
-    "LICENSE.txt"
-]
+include = ["LICENSE.txt"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
 click = "^8.0"
-rich = ">=10.0,<13.0"
+rich = ">=10.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.10b0"
