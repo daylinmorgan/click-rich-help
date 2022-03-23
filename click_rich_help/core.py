@@ -2,7 +2,8 @@ import re
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 import click
-
+from rich.console import Console
+from rich.theme import Theme
 from .utils import _apply_rich, _colorize
 
 
@@ -16,15 +17,23 @@ class HelpStylesFormatter(click.HelpFormatter):
         metavar_style: str = None,
         doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
+        theme: Theme = None,
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
         self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
+        self.console = self._load_console(theme)
         super(HelpStylesFormatter, self).__init__(*args, **kwargs)
+
+    def _load_console(self, theme: Optional[Theme]) -> Console:
+        # print("helo?")
+        # print(theme.styles)
+        # TODO: add some code to generate a theme object from "style" args and resolve with theme object provide
+        return Console(theme=theme, highlight=False,force_terminal=True)
 
     def _get_opt_names(self, option_name: str) -> List[str]:
         opts = self.options_regex.findall(option_name)
@@ -61,7 +70,9 @@ class HelpStylesFormatter(click.HelpFormatter):
                     "|".join(
                         [
                             _colorize(
-                                choice, (self.metavar_style or self.options_style)
+                                self.console,
+                                choice,
+                                (self.metavar_style or self.options_style),
                             )
                             for choice in choices
                         ]
@@ -69,33 +80,38 @@ class HelpStylesFormatter(click.HelpFormatter):
                 )
             else:
                 colorized_metavar = _colorize(
-                    metavar, (self.metavar_style or self.options_style)
+                    self.console, metavar, (self.metavar_style or self.options_style)
                 )
 
             term = option_name.replace(metavar, "")
-            return _colorize(term, self._pick_color(term)) + colorized_metavar
+            return (
+                _colorize(self.console, term, self._pick_color(term))
+                + colorized_metavar
+            )
 
         elif "/" in option_name:
             return " / ".join(
                 [
-                    _colorize(flag.strip(), self._pick_color(option_name))
+                    _colorize(self.console, flag.strip(), self._pick_color(option_name))
                     for flag in option_name.split("/")
                 ]
             )
         else:
 
-            return _colorize(option_name, self._pick_color(option_name))
+            return _colorize(self.console, option_name, self._pick_color(option_name))
 
     def write_usage(self, prog: str, args: str = "", prefix: str = None) -> None:
         if not prefix:
             prefix = "Usage"
-        colorized_prefix = _colorize(prefix, style=self.headers_style, suffix=": ")
+        colorized_prefix = _colorize(
+            self.console, prefix, style=self.headers_style, suffix=": "
+        )
         super(HelpStylesFormatter, self).write_usage(
             prog, args, prefix=colorized_prefix
         )
 
     def write_heading(self, heading: str) -> None:
-        colorized_heading = _colorize(heading, style=self.headers_style)
+        colorized_heading = _colorize(self.console, heading, style=self.headers_style)
         super(HelpStylesFormatter, self).write_heading(colorized_heading)
 
     def write_dl(
@@ -104,9 +120,9 @@ class HelpStylesFormatter(click.HelpFormatter):
         colorized_rows: Sequence[Tuple[str, str]] = [
             (
                 self._write_definition(row[0]),
-                _colorize(row[1], self.doc_style)
+                _colorize(self.console, row[1], self.doc_style)
                 if self.doc_style
-                else _apply_rich(row[1]),
+                else _apply_rich(self.console, row[1]),
             )
             for row in rows
         ]
@@ -115,9 +131,9 @@ class HelpStylesFormatter(click.HelpFormatter):
     def write_text(self, text: str) -> None:
 
         if self.doc_style:
-            colorized_text = _colorize(text, style=self.doc_style)
+            colorized_text = _colorize(self.console, text, style=self.doc_style)
         else:
-            colorized_text = _apply_rich(text)
+            colorized_text = _apply_rich(self.console, text)
         super(HelpStylesFormatter, self).write_text(colorized_text)
 
 

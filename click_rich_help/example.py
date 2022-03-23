@@ -77,7 +77,7 @@ def print_syntax(
 def cli() -> None:
     """[underline]Click-rich-help example[/]
 
-    Welcome to click-rich-help, where we can
+    Welcome to [info]click-rich-help[/], where we can
     leverage the great python app rich
     so we can improve the readability
     and usability of click-powered CLI's.
@@ -172,7 +172,7 @@ def test(string: str, style: str) -> None:
 
 @cli.command(cls=StyledCommand, headers_style="green", doc_style="green")
 @click.option("--name", help="some string")
-def cmd3(name:str) -> None:
+def cmd3(name: str) -> None:
     """why is doc_style important?
 
     The main reason this parameter exists is to apply a default
