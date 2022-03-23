@@ -1,10 +1,10 @@
 import click
 
-from click_rich_help import HelpStylesException, StyledGroup
+from click_rich_help import HelpStylesException, StyledGroup, StyledCommand
 
 
 def test_basic_group(runner):
-    @click.command(cls=StyledGroup, headers_style="yellow", options_style="green")
+    @click.command(cls=StyledCommand, headers_style="yellow", options_style="green")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -12,7 +12,7 @@ def test_basic_group(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
+        "\x1b[33mUsage\x1b[0m: cli [OPTIONS]",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
