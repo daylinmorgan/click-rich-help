@@ -4,13 +4,13 @@ from click_rich_help import StyledCommand
 
 
 @click.command(
-    cls=StyledCommand, options_style="italic cyan", headers_style="bold yellow"
+    cls=StyledCommand, styles={"options": "italic cyan", "headers": "bold yellow"}
 )
 @click.option("--count", default=1, help="[red]Number[/red] of greetings.")
 @click.option("--name", prompt="Your name", help="The person to greet.")
 def hello(count, name):
     """Simple program that greets [b yellow]NAME[/b yellow] for a total of [b yellow]COUNT[/b yellow] times."""
-    for x in range(count):
+    for _ in range(count):
         click.echo(f"Hello {name}!")
 
 

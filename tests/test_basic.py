@@ -1,6 +1,7 @@
 import click
+from rich.errors import StyleSyntaxError
 
-from click_rich_help import HelpStylesException, StyledGroup, StyledCommand
+from click_rich_help import StyledCommand, StyledGroup
 
 
 def test_basic_group(runner):
@@ -54,15 +55,20 @@ def test_basic_command(runner):
 
 
 def test_unknown_color(runner):
-    @click.command(cls=StyledGroup, headers_style="unknwnstyle")
+    @click.command(cls=StyledGroup, headers_style="unknownstyle")
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
 
     result = runner.invoke(cli, ["--help"], color=True)
     assert result.exception
-    assert isinstance(result.exception, HelpStylesException)
-    assert str(result.exception) == "Unknown style unknwnstyle"
+    # assert isinstance(result.exception, HelpStylesException)
+    assert isinstance(result.exception, StyleSyntaxError)
+    # assert str(result.exception) == "Unknown style unknwnstyle"
+    assert (
+        str(result.exception)
+        == "unable to parse 'unknownstyle' as color; 'unknownstyle' is not a valid color"
+    )
 
 
 def test_env_no_color(runner):

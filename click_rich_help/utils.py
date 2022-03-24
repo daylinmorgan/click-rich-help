@@ -1,41 +1,28 @@
 import os
+from typing import Union
 
 from rich.console import CaptureError, Console
-from rich.errors import MissingStyle
-
-# console = Console(highlight=False)
+from rich.style import Style
 
 
-class HelpStylesException(Exception):
-    pass
-
-
-def _get_rich_output(console: Console, text: str = None, style: str = None) -> str:
+def _get_rich_output(
+    console: Console, text: str = None, style: Union[str, Style] = None
+) -> str:
     try:
         with console.capture() as capture:
             console.print(text, style=style, end="")
         return capture.get()
-    except MissingStyle:
-        raise ValueError
     except CaptureError:
         raise ValueError(f"Error capturing output for text: {text} and style: {style}")
 
 
-def _apply_rich(console: Console, text: str) -> str:
-    try:
-        with console.capture() as capture:
-            console.print(text, end="")
-        return capture.get()
-    except MissingStyle:
-        raise ValueError(f"Error: error in help string {text}")
-
-
 def _colorize(
-    console: Console, text: str = None, style: str = None, suffix: str = None
+    console: Console,
+    text: str = None,
+    style: Union[str, Style] = None,
+    suffix: str = None,
 ) -> str:
     if not style or "NO_COLOR" in os.environ:
         return (text or "") + (suffix or "")
-    try:
+    else:
         return _get_rich_output(console, text, style) + (suffix or "")
-    except ValueError:
-        raise HelpStylesException(f"Unknown style {style}")

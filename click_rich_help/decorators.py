@@ -23,21 +23,21 @@ def version_option(
     :param message_style: default style of the message.
 
     for other params see Click's version_option decorator:
-    https://click.palletsprojects.com/en/7.x/api/#click.version_option
+    https://click.palletsprojects.com/en/8.0.x/api/#click.version_option
     """
-    console2 = Console(highlight=False)
+    console = Console(highlight=False)
     msg_parts = []
     for s in re.split(r"(%\(version\)s|%\(prog\)s)", message):
         if s == "%(prog)s":
             msg_parts.append(
-                _colorize(console2, prog_name, prog_name_style or message_style)
+                _colorize(console, prog_name, prog_name_style or message_style)
             )
         elif s == "%(version)s":
             msg_parts.append(
-                _colorize(console2, version, version_style or message_style)
+                _colorize(console, version, version_style or message_style)
             )
         else:
-            msg_parts.append(_colorize(console2, s, message_style))
+            msg_parts.append(_colorize(console, s, message_style))
 
     message = "".join(msg_parts)
 

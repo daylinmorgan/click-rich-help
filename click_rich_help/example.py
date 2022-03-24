@@ -5,6 +5,7 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
+from rich.theme import Theme
 
 from click_rich_help import StyledCommand, StyledGroup
 
@@ -129,6 +130,57 @@ def cmd2(name: str, choices: str, shout: bool) -> None:
 
     \f
     secret text click doesn't want you to see
+    """
+    console.print("Try again with -h")
+
+
+@cli.command(
+    cls=StyledCommand,
+    headers_style="bold blue underline",
+    styles={"options": "italic"},
+    theme=Theme(
+        {
+            "headers": "yellow",
+            "code": "cyan reverse",
+            "info": "dim cyan",
+            "warning": "magenta",
+            "danger": "bold red",
+        }
+    ),
+)
+@click.option(
+    "--option", help="[headers]header color[/],[code]code[/],[danger]DANGER[/]"
+)
+def theme(option: str) -> None:
+    """Color commands and help strings with themes
+
+    In addition to declaring args with your desired style
+    you can also define your style using a
+    [code]rich.theme.Theme[/code] or a simple dictionary.
+
+    If you already make use of a [code]rich.theme.Theme[/code]
+    then it's simple to include it.
+
+    \b
+    For instance:
+    Theme({
+        "headers": "yellow",
+        "info": "dim cyan",
+        "warning": "magenta",
+        "danger": "bold red"
+    })
+
+    Can add styles for use in doc strings and help text.
+    While also updating the styles used for headers, options, metavars, etc.
+
+    [headers]Headers![/]
+    [info]INFO[/]
+    [warning]WARNGING[/]
+    [danger]DANGER[/]
+
+    Use [yellow]python -m click_rich_help.example src theme[/] to view
+    the [code]Theme[/code] style applied to this command.
+
     """
     console.print("Try again with -h")
 

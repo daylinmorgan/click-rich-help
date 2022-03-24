@@ -1,10 +1,13 @@
 import re
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import click
+from click.formatting import wrap_text
 from rich.console import Console
+from rich.style import Style
 from rich.theme import Theme
-from .utils import _apply_rich, _colorize
+
+from .utils import _colorize
 
 
 class HelpStylesFormatter(click.HelpFormatter):
@@ -17,6 +20,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         metavar_style: str = None,
         doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
+        styles: Dict[str, Union[str, Style]] = None,
         theme: Theme = None,
         *args: Any,
         **kwargs: Any,
@@ -26,14 +30,61 @@ class HelpStylesFormatter(click.HelpFormatter):
         self.metavar_style = metavar_style
         self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
-        self.console = self._load_console(theme)
+        self.styles = self._get_styles(styles, theme)
+        self.console = self._load_console()
         super(HelpStylesFormatter, self).__init__(*args, **kwargs)
 
-    def _load_console(self, theme: Optional[Theme]) -> Console:
-        # print("helo?")
-        # print(theme.styles)
-        # TODO: add some code to generate a theme object from "style" args and resolve with theme object provide
-        return Console(theme=theme, highlight=False,force_terminal=True)
+    def _get_styles(
+        self,
+        user_styles: Optional[Dict[str, Union[str, Style]]],
+        theme: Optional[Theme],
+    ) -> Dict[str, Union[str, Style]]:
+
+        styles: Dict[str, Union[str, Style]] = {
+            k: "none" for k in ["headers", "options", "metavar", "doc_style"]
+        }
+        additions: Dict[str, Union[str, Style]] = {
+            k: v
+            for k, v in {
+                **{
+                    "headers": self.headers_style,
+                    "options": self.options_style,
+                    "metavar": self.metavar_style,
+                    "doc_style": self.doc_style,
+                },
+            }.items()
+            if v
+        }
+        if user_styles:
+            if isinstance(user_styles, dict):
+                additions.update(user_styles)
+            else:
+                raise ValueError(
+                    (
+                        f"Invalid styles: {user_styles}\n\n"
+                        "Styles must be a dict containing valid names/styles. "
+                        "See rich for more info"
+                    )
+                )
+        if theme:
+            additions.update(theme.styles)
+
+        # validate style definition and update
+        styles.update(
+            {
+                name: style if isinstance(style, Style) else Style.parse(style)
+                for name, style in additions.items()
+            }
+        )
+
+        return styles
+
+    def _load_console(self) -> Console:
+        return Console(
+            theme=Theme(self.styles, inherit=False),
+            highlight=False,
+            force_terminal=True,
+        )
 
     def _get_opt_names(self, option_name: str) -> List[str]:
         opts = self.options_regex.findall(option_name)
@@ -44,14 +95,14 @@ class HelpStylesFormatter(click.HelpFormatter):
             opts.append(option_name.split()[0])
             return opts
 
-    def _pick_color(self, option_name: str) -> Optional[str]:
+    def _pick_color(self, option_name: str) -> Union[str, Style]:
         opts = self._get_opt_names(option_name)
         for opt in opts:
             if self.options_custom_styles and (
                 opt in self.options_custom_styles.keys()
             ):
                 return self.options_custom_styles[opt]
-        return self.options_style
+        return self.styles["options"]
 
     def _extract_metavar_choices(self, option_name: str) -> str:
         metavar = self.options_regex.sub("", option_name).replace(",", "").strip()
@@ -63,25 +114,23 @@ class HelpStylesFormatter(click.HelpFormatter):
 
     def _write_definition(self, option_name: str) -> str:
         metavar = self._extract_metavar_choices(option_name)
+
+        color = (
+            self.styles["metavar"]
+            if self.styles["metavar"] != "none"
+            else self.styles["options"]
+        )
+
         if not metavar == option_name:
             if "[" in metavar and "]" in metavar:
                 choices = metavar.split("[")[1].split("]")[0].split("|")
                 colorized_metavar = "[{}]".format(
                     "|".join(
-                        [
-                            _colorize(
-                                self.console,
-                                choice,
-                                (self.metavar_style or self.options_style),
-                            )
-                            for choice in choices
-                        ]
+                        [_colorize(self.console, choice, color) for choice in choices]
                     )
                 )
             else:
-                colorized_metavar = _colorize(
-                    self.console, metavar, (self.metavar_style or self.options_style)
-                )
+                colorized_metavar = _colorize(self.console, metavar, color)
 
             term = option_name.replace(metavar, "")
             return (
@@ -103,15 +152,13 @@ class HelpStylesFormatter(click.HelpFormatter):
     def write_usage(self, prog: str, args: str = "", prefix: str = None) -> None:
         if not prefix:
             prefix = "Usage"
-        colorized_prefix = _colorize(
-            self.console, prefix, style=self.headers_style, suffix=": "
-        )
+        colorized_prefix = _colorize(self.console, prefix, style="headers", suffix=": ")
         super(HelpStylesFormatter, self).write_usage(
             prog, args, prefix=colorized_prefix
         )
 
     def write_heading(self, heading: str) -> None:
-        colorized_heading = _colorize(self.console, heading, style=self.headers_style)
+        colorized_heading = _colorize(self.console, heading, style="headers")
         super(HelpStylesFormatter, self).write_heading(colorized_heading)
 
     def write_dl(
@@ -120,9 +167,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         colorized_rows: Sequence[Tuple[str, str]] = [
             (
                 self._write_definition(row[0]),
-                _colorize(self.console, row[1], self.doc_style)
-                if self.doc_style
-                else _apply_rich(self.console, row[1]),
+                _colorize(self.console, row[1], "doc_style"),
             )
             for row in rows
         ]
@@ -130,11 +175,21 @@ class HelpStylesFormatter(click.HelpFormatter):
 
     def write_text(self, text: str) -> None:
 
-        if self.doc_style:
-            colorized_text = _colorize(self.console, text, style=self.doc_style)
-        else:
-            colorized_text = _apply_rich(self.console, text)
-        super(HelpStylesFormatter, self).write_text(colorized_text)
+        indent = " " * self.current_indent
+        self.write(
+            _colorize(
+                self.console,
+                wrap_text(
+                    text,
+                    self.width,
+                    initial_indent=indent,
+                    subsequent_indent=indent,
+                    preserve_paragraphs=True,
+                ),
+                style="doc_style",
+            )
+        )
+        self.write("\n")
 
 
 class StyledGroup(click.Group):
@@ -145,14 +200,18 @@ class StyledGroup(click.Group):
         metavar_style: str = None,
         doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
+        styles: Dict[str, Union[str, Style]] = None,
+        theme: Theme = None,
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
         self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
+        self.styles = styles
+        self.theme = theme
         super(StyledGroup, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -172,6 +231,8 @@ class StyledGroup(click.Group):
             metavar_style=self.metavar_style,
             doc_style=self.doc_style,
             options_custom_styles=self.options_custom_styles,
+            styles=self.styles,
+            theme=self.theme,
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
@@ -185,6 +246,8 @@ class StyledGroup(click.Group):
         kwargs.setdefault("metavar_style", self.metavar_style)
         kwargs.setdefault("doc_style", self.doc_style)
         kwargs.setdefault("options_custom_styles", self.options_custom_styles)
+        kwargs.setdefault("styles", self.styles)
+        kwargs.setdefault("theme", self.theme)
         return super(StyledGroup, self).command(*args, **kwargs)
 
     def group(
@@ -196,6 +259,8 @@ class StyledGroup(click.Group):
         kwargs.setdefault("metavar_style", self.metavar_style)
         kwargs.setdefault("doc_style", self.doc_style)
         kwargs.setdefault("options_custom_styles", self.options_custom_styles)
+        kwargs.setdefault("styles", self.styles)
+        kwargs.setdefault("theme", self.theme)
         return super(StyledGroup, self).group(*args, **kwargs)
 
 
@@ -207,14 +272,18 @@ class StyledCommand(click.Command):
         metavar_style: str = None,
         doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
+        styles: Dict[str, Union[str, Style]] = None,
+        theme: Theme = None,
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
         self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
+        self.styles = styles
+        self.theme = theme
         super(StyledCommand, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -233,6 +302,8 @@ class StyledCommand(click.Command):
             metavar_style=self.metavar_style,
             doc_style=self.doc_style,
             options_custom_styles=self.options_custom_styles,
+            styles=self.styles,
+            theme=self.theme,
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
@@ -246,14 +317,18 @@ class StyledMultiCommand(click.MultiCommand):
         metavar_style: str = None,
         doc_style: str = None,
         options_custom_styles: Dict[str, str] = None,
+        styles: Dict[str, Union[str, Style]] = None,
+        theme: Theme = None,
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         self.headers_style = headers_style
         self.options_style = options_style
         self.metavar_style = metavar_style
         self.doc_style = doc_style
         self.options_custom_styles = options_custom_styles
+        self.styles = styles
+        self.theme = theme
         super(StyledMultiCommand, self).__init__(*args, **kwargs)
 
     def get_help(self, ctx: click.Context) -> str:
@@ -265,6 +340,8 @@ class StyledMultiCommand(click.MultiCommand):
             metavar_style=self.metavar_style,
             doc_style=self.doc_style,
             options_custom_styles=self.options_custom_styles,
+            styles=self.styles,
+            theme=self.theme,
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
@@ -293,5 +370,9 @@ class StyledMultiCommand(click.MultiCommand):
                 cmd.doc_style = self.doc_style
             if not getattr(cmd, "options_custom_styles", None):
                 cmd.options_custom_styles = self.options_custom_styles
+            if not getattr(cmd, "styles", None):
+                cmd.styles = self.styles
+            if not getattr(cmd, "theme", None):
+                cmd.theme = self.theme
 
         return cmd_name, cmd, args[1:]

@@ -7,7 +7,7 @@
 
 base_command="python -m click_rich_help.example"
 SDELAY=2
-LDELAY=4
+LDELAY=5
 sleep 1
 clear
 
@@ -36,6 +36,9 @@ play_command "${base_command} cmd2 -h"
 
 echo "Before we test our own commands let me double check cmd3"
 play_command "${base_command} cmd3 -h"
+
+echo "One could define their styles using a dict or a rich.theme.Theme"
+play_command "${base_command} theme -h"
 
 echo "Hm Let's test some strings and styles"
 play_command "${base_command} test --string '[i blue]blue and italic[/i blue] not blue or italic' --style 'bold grey0 on red'"
