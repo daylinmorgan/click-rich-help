@@ -20,6 +20,7 @@ isort = "^5.10.1"
 pre-commit = "^2.15.0"
 pytest = "^6.2.5"
 mypy = "^0.910"
+bumpver = "^2022.1116"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -42,3 +43,17 @@ disallow_untyped_defs = true
 warn_redundant_casts = true
 warn_return_any = true
 warn_unused_configs = true
+
+[tool.bumpver]
+current_version = "v0.2.2"
+version_pattern = "vMAJOR.MINOR.PATCH[-TAG]"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+  'current_version = "{version}"',
+  'version = "{pep440_version}"',
+]
+"click_rich_help/__init__.py" = ['__version__ = "{pep440_version}"']

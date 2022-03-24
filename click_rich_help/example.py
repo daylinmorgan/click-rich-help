@@ -5,6 +5,7 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
+from rich.theme import Theme
 
 from click_rich_help import StyledCommand, StyledGroup
 
@@ -77,7 +78,7 @@ def print_syntax(
 def cli() -> None:
     """[underline]Click-rich-help example[/]
 
-    Welcome to click-rich-help, where we can
+    Welcome to [info]click-rich-help[/], where we can
     leverage the great python app rich
     so we can improve the readability
     and usability of click-powered CLI's.
@@ -135,6 +136,57 @@ def cmd2(name: str, choices: str, shout: bool) -> None:
 
 @cli.command(
     cls=StyledCommand,
+    headers_style="bold blue underline",
+    styles={"options": "italic"},
+    theme=Theme(
+        {
+            "headers": "yellow",
+            "code": "cyan reverse",
+            "info": "dim cyan",
+            "warning": "magenta",
+            "danger": "bold red",
+        }
+    ),
+)
+@click.option(
+    "--option", help="[headers]header color[/],[code]code[/],[danger]DANGER[/]"
+)
+def theme(option: str) -> None:
+    """Color commands and help strings with themes
+
+    In addition to declaring args with your desired style
+    you can also define your style using a
+    [code]rich.theme.Theme[/code] or a simple dictionary.
+
+    If you already make use of a [code]rich.theme.Theme[/code]
+    then it's simple to include it.
+
+    \b
+    For instance:
+    Theme({
+        "headers": "yellow",
+        "info": "dim cyan",
+        "warning": "magenta",
+        "danger": "bold red"
+    })
+
+    Can add styles for use in doc strings and help text.
+    While also updating the styles used for headers, options, metavars, etc.
+
+    [headers]Headers![/]
+    [info]INFO[/]
+    [warning]WARNGING[/]
+    [danger]DANGER[/]
+
+    Use [yellow]python -m click_rich_help.example src theme[/] to view
+    the [code]Theme[/code] style applied to this command.
+
+    """
+    console.print("Try again with -h")
+
+
+@cli.command(
+    cls=StyledCommand,
     metavar_style="strike yellow",
     options_custom_styles={"--string": "bold red", "--style": "u green"},
 )
@@ -172,7 +224,7 @@ def test(string: str, style: str) -> None:
 
 @cli.command(cls=StyledCommand, headers_style="green", doc_style="green")
 @click.option("--name", help="some string")
-def cmd3(name:str) -> None:
+def cmd3(name: str) -> None:
     """why is doc_style important?
 
     The main reason this parameter exists is to apply a default
