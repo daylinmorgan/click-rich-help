@@ -343,14 +343,20 @@ class StyledCommand(click.Command):
         self, opts: List[Tuple[str, str]], formatter: click.HelpFormatter
     ) -> Union[List[Tuple[str, str]], None]:
         grouped_opt = []
+
         if self.option_groups:
             for group, params in self.option_groups.items():
                 write_params = []
+
                 for param in params:
-                    opt = [opt for opt in opts if param in opt[0]][0]
+                    try:
+                        opt = [opt for opt in opts if param in opt[0]][0]
+                    except IndexError:
+                        raise ValueError(f"Unable to find {param} in options")
                     write_params.append(opt)
 
                 grouped_opt.extend(write_params)
+
                 with formatter.section(_(group)):
                     formatter.write_dl(write_params)
 
