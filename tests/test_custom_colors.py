@@ -3,14 +3,15 @@ import pytest
 
 from click_rich_help import StyledCommand, StyledGroup
 
-BASE_STYLES = {'header':'yellow','option':'green'}
+BASE_STYLES = {"header": "yellow", "option": "green"}
+
 
 def test_command_custom_colors(runner):
     @click.group(cls=StyledGroup, styles=BASE_STYLES)
     def cli():
         pass
 
-    @cli.command(cls=StyledCommand,styles={'header':'red','option':'blue'})
+    @cli.command(cls=StyledCommand, styles={"header": "red", "option": "blue"})
     @click.option("--name", help="The person to greet.")
     def command(name):
         pass
@@ -55,6 +56,7 @@ def test_custom_option_color(runner):
         "  \x1b[31mcommand1\x1b[0m",
         "  \x1b[32mcommand2\x1b[0m",
     ]
+
 
 def test_option_color(runner):
     @click.group(

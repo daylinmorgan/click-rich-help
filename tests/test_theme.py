@@ -1,13 +1,13 @@
 import click
 from rich.theme import Theme
 
-from click_rich_help import StyledCommand, StyledGroup
+from click_rich_help import StyledGroup
 
 
 def test_theme(runner):
     @click.group(
         cls=StyledGroup,
-        styles={"header": "red",'option':'green'},
+        styles={"header": "red", "option": "green"},
         option_custom_styles={"command1": "bold italic blue"},
         theme=Theme({"headers": "yellow"}),
     )

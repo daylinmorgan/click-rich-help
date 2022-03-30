@@ -1,4 +1,3 @@
-from email.mime import base
 import re
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -12,6 +11,7 @@ from .utils import _colorize
 
 CLICK_STYLES = ["header", "option", "metavar", "doc_style", "default"]
 
+# https://github.com/dracula/dracula-theme
 THEMES = {
     "default": Theme(
         {
@@ -19,7 +19,7 @@ THEMES = {
             "option": "bold #50Fa7b",
             "metavar": "#8be9fd",
             "default": "dim",
-            "required": "dim red",
+            "required": "dim #ff5555",
         }
     )
 }
