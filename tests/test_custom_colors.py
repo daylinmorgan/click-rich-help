@@ -19,7 +19,7 @@ def test_command_custom_colors(runner):
     result = runner.invoke(cli, ["command", "--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[31mUsage\x1b[0m: cli command [OPTIONS]",
+        "\x1b[31mUsage\x1b[0m: \x1b[1mcli command\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
         "\x1b[31mOptions\x1b[0m:",
         "  \x1b[34m--name \x1b[0m\x1b[34mTEXT\x1b[0m  The person to greet.",
@@ -47,14 +47,14 @@ def test_custom_option_color(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--help\x1b[0m  Show this message and exit.",
         "",
         "\x1b[33mCommands\x1b[0m:",
-        "  \x1b[31mcommand1\x1b[0m",
-        "  \x1b[32mcommand2\x1b[0m",
+        "  \x1b[31mcommand1\x1b[0m  ",
+        "  \x1b[32mcommand2\x1b[0m  ",
     ]
 
 
@@ -75,7 +75,7 @@ def test_option_color(runner):
     result = runner.invoke(cli, ["command", "--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli command\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[31m--name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
@@ -101,7 +101,7 @@ def test_multi_name_option_color(runner, option_name):
     result = runner.invoke(cli, ["command", "--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli command\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[31m-n, --name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
@@ -127,9 +127,9 @@ def test_flag_option_color(runner, option_name):
     result = runner.invoke(cli, ["command", "--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli command\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
-        "  \x1b[31m--shout\x1b[0m / \x1b[31m--no-shout\x1b[0m",
+        "  \x1b[31m--shout\x1b[0m / \x1b[31m--no-shout\x1b[0m  ",
         "  \x1b[32m--help\x1b[0m                Show this message and exit.",
     ]

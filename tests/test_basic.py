@@ -13,7 +13,7 @@ def test_basic_group(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli [OPTIONS]",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
@@ -34,19 +34,19 @@ def test_basic_command(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--help\x1b[0m  Show this message and exit.",
         "",
         "\x1b[33mCommands\x1b[0m:",
-        "  \x1b[32mcommand\x1b[0m",
+        "  \x1b[32mcommand\x1b[0m  ",
     ]
 
     result = runner.invoke(cli, ["command", "--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli command [OPTIONS]",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli command\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--name \x1b[0m\x1b[32mTEXT\x1b[0m  The person to greet.",
@@ -104,7 +104,7 @@ def test_basic_metavar(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--name \x1b[0m\x1b[31mTEXT\x1b[0m  The person to greet.",
@@ -129,7 +129,7 @@ def test_custom_metavar(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--first-name \x1b[0m\x1b[31m<name>\x1b[0m  The person's first name.",
@@ -158,9 +158,74 @@ def test_custom_metavar_choice(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[33mUsage\x1b[0m: cli [OPTIONS] COMMAND [ARGS]...",
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
         "\x1b[33mOptions\x1b[0m:",
         "  \x1b[32m--name \x1b[0m[\x1b[31mBilly\x1b[0m|\x1b[31mBob\x1b[0m]  either billy or bob",
+        "  \x1b[32m--help\x1b[0m              Show this message and exit.",
+    ]
+
+
+def test_show_default(runner):
+    @click.command(
+        cls=StyledGroup,
+        styles={
+            "header": "yellow",
+            "option": "green",
+            "metavar": "red",
+        },
+    )
+    @click.option(
+        "--name",
+        help="either billy or bob",
+        type=click.Choice(["Billy", "Bob"]),
+    )
+    @click.option(
+        "--count", help="number of times to print", default=5, show_default=True
+    )
+    def cli(count):
+        pass
+
+    result = runner.invoke(cli, ["--help"], color=True)
+    assert not result.exception
+    assert result.output.splitlines() == [
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
+        "",
+        "\x1b[33mOptions\x1b[0m:",
+        "  \x1b[32m--name \x1b[0m[\x1b[31mBilly\x1b[0m|\x1b[31mBob\x1b[0m]  either billy or bob",
+        "  \x1b[32m--count \x1b[0m\x1b[31mINTEGER\x1b[0m     number of times to print [default: 5]",
+        "  \x1b[32m--help\x1b[0m              Show this message and exit.",
+    ]
+
+
+def test_show_default(runner):
+    @click.command(
+        cls=StyledGroup,
+        styles={
+            "header": "yellow",
+            "option": "green",
+            "metavar": "red",
+            "default": "dim",
+        },
+    )
+    @click.option(
+        "--name",
+        help="either billy or bob",
+        type=click.Choice(["Billy", "Bob"]),
+    )
+    @click.option(
+        "--count", help="number of times to print", default=5, show_default=True
+    )
+    def cli(count):
+        pass
+
+    result = runner.invoke(cli, ["--help"], color=True)
+    assert not result.exception
+    assert result.output.splitlines() == [
+        "\x1b[33mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
+        "",
+        "\x1b[33mOptions\x1b[0m:",
+        "  \x1b[32m--name \x1b[0m[\x1b[31mBilly\x1b[0m|\x1b[31mBob\x1b[0m]  either billy or bob",
+        "  \x1b[32m--count \x1b[0m\x1b[31mINTEGER\x1b[0m     number of times to print \x1b[2m[default: 5]\x1b[0m",
         "  \x1b[32m--help\x1b[0m              Show this message and exit.",
     ]
