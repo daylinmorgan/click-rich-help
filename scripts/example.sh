@@ -24,7 +24,7 @@ play_command() {
 }
 
 
-echo "Allow me to demonstrate the power of click-rick-help!"
+echo "Allow me to demonstrate the power of click-rich-help!"
 echo "Let's begin with the example module's main help page"
 play_command "${base_command} -h"
 

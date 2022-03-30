@@ -70,9 +70,7 @@ def print_syntax(
 
 @click.group(
     cls=StyledGroup,
-    headers_style="yellow bold",
-    options_style="cyan italic",
-    metavar_style="red bold",
+    styles={"header": "yellow bold", "option": "cyan italic", "metavar": "red bold"},
     context_settings=CONTEXT_SETTINGS,
 )
 def cli() -> None:
@@ -114,7 +112,7 @@ def cmd1(count: int, pretty: bool) -> None:
     console.print("Try again with -h")
 
 
-@cli.command(cls=StyledCommand, options_style="green")
+@cli.command(cls=StyledCommand, styles={"options": "green"})
 @click.option("--name", help="some string")
 @click.option("--choices", help="make a choice", type=click.Choice(["yay", "nay"]))
 @click.option("--shout/--no-shout", help="shout or don't")
@@ -136,8 +134,7 @@ def cmd2(name: str, choices: str, shout: bool) -> None:
 
 @cli.command(
     cls=StyledCommand,
-    headers_style="bold blue underline",
-    styles={"options": "italic"},
+    styles={"header": "bold blue underline", "option": "italic"},
     theme=Theme(
         {
             "headers": "yellow",
@@ -154,8 +151,7 @@ def cmd2(name: str, choices: str, shout: bool) -> None:
 def theme(option: str) -> None:
     """Color commands and help strings with themes
 
-    In addition to declaring args with your desired style
-    you can also define your style using a
+    You can also define your style using a
     [code]rich.theme.Theme[/code] or a simple dictionary.
 
     If you already make use of a [code]rich.theme.Theme[/code]
@@ -187,8 +183,8 @@ def theme(option: str) -> None:
 
 @cli.command(
     cls=StyledCommand,
-    metavar_style="strike yellow",
-    options_custom_styles={"--string": "bold red", "--style": "u green"},
+    styles={"options": "strike yellow"},
+    option_custom_styles={"--string": "bold red", "--style": "u green"},
 )
 @click.option("--string", help="markup string to test with rich (use quotes!)")
 @click.option("--style", help="color/style to test")
@@ -222,7 +218,10 @@ def test(string: str, style: str) -> None:
         console.print(f' "{style}" ')
 
 
-@cli.command(cls=StyledCommand, headers_style="green", doc_style="green")
+@cli.command(
+    cls=StyledCommand,
+    styles={"header": "green", "doc_style": "green"},
+)
 @click.option("--name", help="some string")
 def cmd3(name: str) -> None:
     """why is doc_style important?
@@ -230,7 +229,7 @@ def cmd3(name: str) -> None:
     The main reason this parameter exists is to apply a default
     styling across both short and long form doc strings in your app.
 
-    Imporantly one can still colorize the docstring by using the
+    Importantly one can still colorize the docstring by using the
     [bold italic red]markup style of rich[/].
     """
 
@@ -240,7 +239,11 @@ def cmd3(name: str) -> None:
 @cli.command()
 @click.argument("command")
 @click.option(
-    "--theme", help="pygments theme", default="monokai", metavar="<theme name>"
+    "--theme",
+    help="pygments theme",
+    default="monokai",
+    metavar="<theme name>",
+    show_default=True,
 )
 def src(command: str, theme: str) -> None:
     """View the source code for a given [yellow]COMMAND[/]

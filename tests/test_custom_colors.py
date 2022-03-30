@@ -3,13 +3,14 @@ import pytest
 
 from click_rich_help import StyledCommand, StyledGroup
 
+BASE_STYLES = {'header':'yellow','option':'green'}
 
 def test_command_custom_colors(runner):
-    @click.group(cls=StyledGroup, headers_style="yellow", options_style="green")
+    @click.group(cls=StyledGroup, styles=BASE_STYLES)
     def cli():
         pass
 
-    @cli.command(cls=StyledCommand, headers_style="red", options_style="blue")
+    @cli.command(cls=StyledCommand,styles={'header':'red','option':'blue'})
     @click.option("--name", help="The person to greet.")
     def command(name):
         pass
@@ -28,9 +29,8 @@ def test_command_custom_colors(runner):
 def test_custom_option_color(runner):
     @click.group(
         cls=StyledGroup,
-        headers_style="yellow",
-        options_style="green",
-        options_custom_styles={"command1": "red"},
+        styles=BASE_STYLES,
+        option_custom_styles={"command1": "red"},
     )
     def cli():
         pass
@@ -56,13 +56,11 @@ def test_custom_option_color(runner):
         "  \x1b[32mcommand2\x1b[0m",
     ]
 
-
 def test_option_color(runner):
     @click.group(
         cls=StyledGroup,
-        headers_style="yellow",
-        options_style="green",
-        options_custom_styles={"--name": "red"},
+        styles=BASE_STYLES,
+        option_custom_styles={"--name": "red"},
     )
     def cli():
         pass
@@ -87,9 +85,8 @@ def test_option_color(runner):
 def test_multi_name_option_color(runner, option_name):
     @click.group(
         cls=StyledGroup,
-        headers_style="yellow",
-        options_style="green",
-        options_custom_styles={option_name: "red"},
+        styles=BASE_STYLES,
+        option_custom_styles={option_name: "red"},
     )
     def cli():
         pass
@@ -114,9 +111,8 @@ def test_multi_name_option_color(runner, option_name):
 def test_flag_option_color(runner, option_name):
     @click.group(
         cls=StyledGroup,
-        headers_style="yellow",
-        options_style="green",
-        options_custom_styles={option_name: "red"},
+        styles=BASE_STYLES,
+        option_custom_styles={option_name: "red"},
     )
     def cli():
         pass

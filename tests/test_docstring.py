@@ -5,7 +5,12 @@ from click_rich_help import StyledGroup
 
 def test_basic_group(runner):
     @click.command(
-        cls=StyledGroup, headers_style="yellow", options_style="green", doc_style="red"
+        cls=StyledGroup,
+        styles={
+            'header':'yellow',
+            'option':'green',
+            'doc_style':'red'
+        }
     )
     @click.option("--name", help="The person to greet.")
     def cli(count):

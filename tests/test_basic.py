@@ -5,7 +5,7 @@ from click_rich_help import StyledCommand, StyledGroup
 
 
 def test_basic_group(runner):
-    @click.command(cls=StyledCommand, headers_style="yellow", options_style="green")
+    @click.command(cls=StyledCommand, styles={"header":"yellow", "option":"green"})
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -22,7 +22,7 @@ def test_basic_group(runner):
 
 
 def test_basic_command(runner):
-    @click.group(cls=StyledGroup, headers_style="yellow", options_style="green")
+    @click.group(cls=StyledGroup, styles={"header":"yellow", "option":"green"})
     def cli():
         pass
 
@@ -55,7 +55,7 @@ def test_basic_command(runner):
 
 
 def test_unknown_color(runner):
-    @click.command(cls=StyledGroup, headers_style="unknownstyle")
+    @click.command(cls=StyledGroup, styles={'header':"unknownstyle"})
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -72,7 +72,7 @@ def test_unknown_color(runner):
 
 
 def test_env_no_color(runner):
-    @click.command(cls=StyledGroup, headers_style="yellow", options_style="green")
+    @click.command(cls=StyledGroup, styles={"header":"yellow", "option":"green"})
     @click.option("--name", help="The person to greet.")
     def cli(count):
         pass
@@ -91,9 +91,11 @@ def test_env_no_color(runner):
 def test_basic_metavar(runner):
     @click.command(
         cls=StyledGroup,
-        headers_style="yellow",
-        options_style="green",
-        metavar_style="red",
+        styles={
+        "header":"yellow",
+        "option":"green",
+        "metavar":"red",
+        }
     )
     @click.option("--name", help="The person to greet.")
     def cli(count):
@@ -113,9 +115,11 @@ def test_basic_metavar(runner):
 def test_custom_metavar(runner):
     @click.command(
         cls=StyledGroup,
-        headers_style="yellow",
-        options_style="green",
-        metavar_style="red",
+        styles={
+        "header":"yellow",
+        "option":"green",
+        "metavar":"red",
+        }
     )
     @click.option("--first-name", help="The person's first name.", metavar="<name>")
     @click.option("--last-name", help="The person's last name.")
@@ -137,9 +141,11 @@ def test_custom_metavar(runner):
 def test_custom_metavar_choice(runner):
     @click.command(
         cls=StyledGroup,
-        headers_style="yellow",
-        options_style="green",
-        metavar_style="red",
+        styles={
+        "header":"yellow",
+        "option":"green",
+        "metavar":"red",
+        }
     )
     @click.option(
         "--name",
