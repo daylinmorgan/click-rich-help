@@ -41,6 +41,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         *args: Any,
         **kwargs: Any,
     ):
+        base_theme: Optional[Theme]
 
         if not any([styles, theme]):
             theme = THEMES["default"]
@@ -57,9 +58,9 @@ class HelpStylesFormatter(click.HelpFormatter):
         self.console = self._load_console()
         super(HelpStylesFormatter, self).__init__(
             width=self._get_width(max_width), *args, **kwargs
-        )
+        )  # type: ignore # mypy issue 4335.
 
-    def _get_width(self, max_width) -> int:
+    def _get_width(self, max_width: int = None) -> int:
         if max_width is None:
             max_width = 120
         width = min((self.console.width - 2), (max_width - 2))
@@ -278,10 +279,11 @@ class StyledGroup(click.Group):
     def _write_command_groups(
         self, cmds: List[Tuple[str, str]], formatter: click.HelpFormatter
     ) -> List[Tuple[str, str]]:
-        grouped_cmds = []
+
+        grouped_cmds: List[Tuple[str, str]] = []
         if self.command_groups:
             for group, commands in self.command_groups.items():
-                write_cmds = []
+                write_cmds: List[Tuple[str, str]] = []
                 if not isinstance(commands, list):
                     raise ValueError(
                         f"Expected list of commands, group: {group}, commands: {commands}"
@@ -408,11 +410,11 @@ class StyledCommand(click.Command):
     def _write_option_groups(
         self, opts: List[Tuple[str, str]], formatter: click.HelpFormatter
     ) -> Union[List[Tuple[str, str]], None]:
-        grouped_opt = []
+        grouped_opt: List[Tuple[str, str]] = []
 
         if self.option_groups:
             for group, params in self.option_groups.items():
-                write_params = []
+                write_params: List[Tuple[str, str]] = []
 
                 for param in params:
                     try:
@@ -498,7 +500,7 @@ class StyledMultiCommand(click.MultiCommand):
             if not getattr(cmd, "theme", None):
                 cmd.theme = self.theme
             if not getattr(cmd, "use_theme", None):
-                cmd.theme = self.use_theme
+                cmd.use_theme = self.use_theme
             if not getattr(cmd, "option_custom_styles", None):
                 cmd.option_custom_styles = self.option_custom_styles
             if not getattr(cmd, "max_width"):
