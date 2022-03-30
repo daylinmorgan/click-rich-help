@@ -240,6 +240,8 @@ class StyledGroup(click.Group):
         styles: Dict[str, Union[str, Style]] = None,
         theme: Theme = None,
         use_theme: str = None,
+        command_groups: Dict[str, str] = None,
+        option_groups: Dict[str, str] = None,
         option_custom_styles: Dict[str, str] = None,
         max_width: int = None,
         *args: Any,
@@ -248,6 +250,8 @@ class StyledGroup(click.Group):
         self.styles = styles
         self.theme = theme
         self.use_theme = use_theme
+        self.command_groups = command_groups
+        self.option_groups = option_groups
         self.option_custom_styles = option_custom_styles
         self.max_width = max_width
         super(StyledGroup, self).__init__(*args, **kwargs)
@@ -270,6 +274,68 @@ class StyledGroup(click.Group):
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
+
+    def _write_command_groups(
+        self, cmds: List[Tuple[str, str]], formatter: click.HelpFormatter
+    ) -> List[Tuple[str, str]]:
+        grouped_cmds = []
+        if self.command_groups:
+            for group, commands in self.command_groups.items():
+                write_cmds = []
+                if not isinstance(commands, list):
+                    raise ValueError(
+                        f"Expected list of commands, group: {group}, commands: {commands}"
+                    )
+                for command in commands:
+                    try:
+                        cmd = [cmd for cmd in cmds if command in cmd[0]][0]
+                    except IndexError:
+                        raise ValueError(
+                            f"Unable to find command '{command}' in list of commands"
+                        )
+                    write_cmds.append(cmd)
+                grouped_cmds.extend(write_cmds)
+                with formatter.section(_(group)):
+                    formatter.write_dl(write_cmds)
+
+        return grouped_cmds
+
+    def format_commands(
+        self, ctx: click.Context, formatter: click.HelpFormatter
+    ) -> None:
+        """Extra format methods for multi methods that adds all the commands
+        after the options.
+        """
+        commands = []
+        for subcommand in self.list_commands(ctx):
+            cmd = self.get_command(ctx, subcommand)
+            # What is this, the tool lied about a command.  Ignore it
+            if cmd is None:
+                continue
+            if cmd.hidden:
+                continue
+
+            commands.append((subcommand, cmd))
+
+        # allow for 3 times the default spacing
+        if len(commands):
+            limit = formatter.width - 6 - max(len(cmd[0]) for cmd in commands)
+
+            rows = []
+            for subcommand, cmd in commands:
+                help = cmd.get_short_help_str(limit)
+                rows.append((subcommand, help))
+
+            grouped_cmds = self._write_command_groups(rows, formatter)
+
+            rows = (
+                [row for row in rows if row not in grouped_cmds]
+                if grouped_cmds
+                else rows
+            )
+            if rows:
+                with formatter.section(_("Commands")):
+                    formatter.write_dl(rows)
 
     def command(
         self, *args: Any, **kwargs: Any
@@ -352,7 +418,9 @@ class StyledCommand(click.Command):
                     try:
                         opt = [opt for opt in opts if param in opt[0]][0]
                     except IndexError:
-                        raise ValueError(f"Unable to find {param} in options")
+                        raise ValueError(
+                            f"Unable to find option '{param}' in list of options"
+                        )
                     write_params.append(opt)
 
                 grouped_opt.extend(write_params)
