@@ -1,4 +1,5 @@
 import re
+from gettext import gettext as _
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import click
@@ -302,6 +303,7 @@ class StyledCommand(click.Command):
         styles: Dict[str, Union[str, Style]] = None,
         theme: Theme = None,
         use_theme: str = None,
+        option_groups: Dict[str, str] = None,
         option_custom_styles: Dict[str, str] = None,
         max_width: int = None,
         *args: Any,
@@ -314,6 +316,7 @@ class StyledCommand(click.Command):
         }
         self.theme = theme
         self.use_theme = use_theme
+        self.option_groups = option_groups
         self.option_custom_styles = option_custom_styles
         self.max_width = max_width
         super(StyledCommand, self).__init__(*args, **kwargs)
@@ -335,6 +338,42 @@ class StyledCommand(click.Command):
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
+
+    def _write_option_groups(
+        self, opts: List[Tuple[str, str]], formatter: click.HelpFormatter
+    ) -> Union[List[Tuple[str, str]], None]:
+        grouped_opt = []
+        if self.option_groups:
+            for group, params in self.option_groups.items():
+                write_params = []
+                for param in params:
+                    opt = [opt for opt in opts if param in opt[0]][0]
+                    write_params.append(opt)
+
+                grouped_opt.extend(write_params)
+                with formatter.section(_(group)):
+                    formatter.write_dl(write_params)
+
+        return grouped_opt
+
+    def format_options(
+        self, ctx: click.Context, formatter: click.HelpFormatter
+    ) -> None:
+        """Writes all the options into the formatter if they exist."""
+        opts = []
+
+        for param in self.get_params(ctx):
+            rv = param.get_help_record(ctx)
+            if rv is not None:
+                opts.append(rv)
+
+        grouped_opt = self._write_option_groups(opts, formatter)
+
+        opts = [opt for opt in opts if opt not in grouped_opt] if grouped_opt else opts
+
+        if opts:
+            with formatter.section(_("Options")):
+                formatter.write_dl(opts)
 
 
 class StyledMultiCommand(click.MultiCommand):
