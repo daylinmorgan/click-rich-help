@@ -84,12 +84,12 @@ def cli() -> None:
     Why?
     So we can make text [red]red[/], [yellow]yellow[/], or [green]green[/].
 
-    Or maybe we want to [b]bold[/],[i]italic[/],[underline]underline[/],
+    Or maybe we want to [b]bold[/], [i]italic[/], [underline]underline[/],
     or [strike]strikethrough[/] our text?
 
     Let's do all of the above!
 
-    [b i underline strike green]ALL[/]
+    [b i strike green]ALL[/]
 
     Checkout more examples, start with
     [yellow]python -m click_rich_help.examples cmd1 -h[/].
@@ -166,7 +166,7 @@ def theme(option: str) -> None:
         "danger": "bold red"
     })
 
-    Can add styles for use in doc strings and help text.
+    You can add styles for use in doc strings and help text.
     While also updating the styles used for headers, options, metavars, etc.
 
     [headers]Headers![/]
@@ -233,6 +233,40 @@ def cmd3(name: str) -> None:
     [bold italic red]markup style of rich[/].
     """
 
+    console.print("Try again with -h")
+
+
+@cli.command(option_groups={"Group": ["--option-1", "--option-2"]})
+@click.option("--option-1", help="first option")
+@click.option("--option-2", help="second option")
+@click.option("--name", help="some string")
+def group(option_1, option_2, name):
+    """Group commands and options
+
+    Generate lists of option groups by passing a dictionary to your command decorator
+
+    \b
+    Example:
+    [cyan]@click.command(
+        cls=StyledCommand,
+        option_groups={
+            "Group":["--option-1","--option-2"]
+        }
+    )[/cyan]
+
+    \b
+    Or do the same with commands for a StyledGroup:
+    Example:
+    [cyan]@cli.group(
+        cls=StyledGroup,
+        command_groups={
+            "general":["cmd1","cmd2"],
+            "database":["load","save"]
+        }
+    )[/cyan]
+
+    All remaining options/groups will be appended in a seperate "Options" group.
+    """
     console.print("Try again with -h")
 
 
