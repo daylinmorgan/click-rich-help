@@ -12,15 +12,14 @@ from .utils import _colorize
 
 CLICK_STYLES = ["header", "option", "metavar", "doc_style", "default"]
 
-# https://github.com/dracula/dracula-theme
 THEMES = {
     "default": Theme(
         {
-            "header": "bold italic #f1fa8c",
-            "option": "bold #50Fa7b",
-            "metavar": "#8be9fd",
+            "header": "bold italic cyan",
+            "option": "bold yellow",
+            "metavar": "green",
             "default": "dim",
-            "required": "dim #ff5555",
+            "required": "dim red",
         }
     )
 }
