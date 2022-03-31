@@ -198,7 +198,7 @@ def test_show_default(runner):
     ]
 
 
-def test_show_default(runner):
+def test_show_default_styled(runner):
     @click.command(
         cls=StyledGroup,
         styles={

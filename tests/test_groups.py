@@ -1,5 +1,4 @@
 import click
-from rich.errors import StyleSyntaxError
 
 from click_rich_help import StyledCommand, StyledGroup
 
@@ -94,7 +93,8 @@ def test_option_group(runner):
 
 def test_unknown_option(runner):
     @click.command(
-        cls=StyledCommand, option_groups={"Config": ["--config", "--save-config","--unknown-option"]}
+        cls=StyledCommand,
+        option_groups={"Config": ["--config", "--save-config", "--unknown-option"]},
     )
     @click.option("--name", help="The person to greet.")
     @click.option("--config", help="path to config")
