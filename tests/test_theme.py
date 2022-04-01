@@ -8,12 +8,13 @@ from click_rich_help import StyledGroup
 click_rich_help.core.THEMES = {
     "default": Theme(
         {
-            "header": "bold italic #f1fa8c",
-            "option": "bold #50Fa7b",
-            "metavar": "#8be9fd",
+            "header": "bold italic cyan",
+            "option": "bold yellow",
+            "metavar": "green",
             "default": "dim",
-            "required": "dim #ff5555",
-        }
+            "required": "dim red",
+        },
+        inherit=False,
     )
 }
 
@@ -38,25 +39,25 @@ def test_defaults(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[1;3;38;2;241;250;140mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
+        "\x1b[1;3;36mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
-        "\x1b[1;3;38;2;241;250;140mOptions\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123m--help\x1b[0m  Show this message and exit.",
+        "\x1b[1;3;36mOptions\x1b[0m:",
+        "  \x1b[1;33m--help\x1b[0m  Show this message and exit.",
         "",
-        "\x1b[1;3;38;2;241;250;140mCommands\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123mcommand1\x1b[0m  ",
-        "  \x1b[1;38;2;80;250;123mcommand2\x1b[0m  ",
+        "\x1b[1;3;36mCommands\x1b[0m:",
+        "  \x1b[1;33mcommand1\x1b[0m  ",
+        "  \x1b[1;33mcommand2\x1b[0m  ",
     ]
 
     result = runner.invoke(cli, ["command1", "--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[1;3;38;2;241;250;140mUsage\x1b[0m: \x1b[1mcli command1\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
+        "\x1b[1;3;36mUsage\x1b[0m: \x1b[1mcli command1\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
-        "\x1b[1;3;38;2;241;250;140mOptions\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123m--name \x1b[0m\x1b[38;2;139;233;253mTEXT\x1b[0m      name to print \x1b[2;38;2;255;85;85m[required]\x1b[0m",
-        "  \x1b[1;38;2;80;250;123m--count \x1b[0m\x1b[38;2;139;233;253mINTEGER\x1b[0m  times to print name \x1b[2m[default: 5]\x1b[0m",
-        "  \x1b[1;38;2;80;250;123m--help\x1b[0m           Show this message and exit.",
+        "\x1b[1;3;36mOptions\x1b[0m:",
+        "  \x1b[1;33m--name \x1b[0m\x1b[32mTEXT\x1b[0m      name to print \x1b[2;31m[required]\x1b[0m",
+        "  \x1b[1;33m--count \x1b[0m\x1b[32mINTEGER\x1b[0m  times to print name \x1b[2m[default: 5]\x1b[0m",
+        "  \x1b[1;33m--help\x1b[0m           Show this message and exit.",
     ]
 
 
@@ -81,11 +82,11 @@ def test_defaults_inherit(runner):
         "\x1b[34mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
         "\x1b[34mOptions\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123m--help\x1b[0m  Show this message and exit.",
+        "  \x1b[1;33m--help\x1b[0m  Show this message and exit.",
         "",
         "\x1b[34mCommands\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123mcommand1\x1b[0m  ",
-        "  \x1b[1;38;2;80;250;123mcommand2\x1b[0m  ",
+        "  \x1b[1;33mcommand1\x1b[0m  ",
+        "  \x1b[1;33mcommand2\x1b[0m  ",
     ]
 
     result = runner.invoke(cli, ["command1", "--help"], color=True)
@@ -94,8 +95,8 @@ def test_defaults_inherit(runner):
         "\x1b[34mUsage\x1b[0m: \x1b[1mcli command1\x1b[0m \x1b[1m[OPTIONS]\x1b[0m",
         "",
         "\x1b[34mOptions\x1b[0m:",
-        "  \x1b[31m--name \x1b[0m\x1b[38;2;139;233;253mTEXT\x1b[0m      name to print \x1b[2;38;2;255;85;85m[required]\x1b[0m",
-        "  \x1b[31m--count \x1b[0m\x1b[38;2;139;233;253mINTEGER\x1b[0m  times to print name \x1b[2m[default: 5]\x1b[0m",
+        "  \x1b[31m--name \x1b[0m\x1b[32mTEXT\x1b[0m      name to print \x1b[2;31m[required]\x1b[0m",
+        "  \x1b[31m--count \x1b[0m\x1b[32mINTEGER\x1b[0m  times to print name \x1b[2m[default: 5]\x1b[0m",
         "  \x1b[31m--help\x1b[0m           Show this message and exit.",
     ]
 

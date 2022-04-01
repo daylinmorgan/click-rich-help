@@ -4,7 +4,10 @@ from click_rich_help import StyledCommand, StyledGroup
 
 
 def test_command_group(runner):
-    @click.group(cls=StyledGroup, command_groups={"main": ["cmd1", "cmd2"]})
+    @click.group(
+        cls=StyledGroup,
+        command_groups={"main": ["cmd1", "cmd2"]},
+    )
     def cli():
         pass
 
@@ -24,17 +27,17 @@ def test_command_group(runner):
     result = runner.invoke(cli, ["--help"], color=True)
     assert not result.exception
     assert result.output.splitlines() == [
-        "\x1b[1;3;38;2;241;250;140mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
+        "\x1b[1;3;36mUsage\x1b[0m: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
-        "\x1b[1;3;38;2;241;250;140mOptions\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123m--help\x1b[0m  Show this message and exit.",
+        "\x1b[1;3;36mOptions\x1b[0m:",
+        "  \x1b[1;33m--help\x1b[0m  Show this message and exit.",
         "",
-        "\x1b[1;3;38;2;241;250;140mmain\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123mcmd1\x1b[0m  ",
-        "  \x1b[1;38;2;80;250;123mcmd2\x1b[0m  ",
+        "\x1b[1;3;36mmain\x1b[0m:",
+        "  \x1b[1;33mcmd1\x1b[0m  ",
+        "  \x1b[1;33mcmd2\x1b[0m  ",
         "",
-        "\x1b[1;3;38;2;241;250;140mCommands\x1b[0m:",
-        "  \x1b[1;38;2;80;250;123mothercmd\x1b[0m  ",
+        "\x1b[1;3;36mCommands\x1b[0m:",
+        "  \x1b[1;33mothercmd\x1b[0m  ",
     ]
 
 
