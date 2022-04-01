@@ -8,5 +8,4 @@ __all__ = [
     "StyledMultiCommand",
     "version_option",
 ]
-
 __version__ = "0.3.0"

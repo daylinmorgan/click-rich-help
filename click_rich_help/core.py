@@ -20,7 +20,8 @@ THEMES = {
             "metavar": "green",
             "default": "dim",
             "required": "dim red",
-        }
+        },
+        inherit=False,
     )
 }
 
@@ -55,15 +56,12 @@ class HelpStylesFormatter(click.HelpFormatter):
         self.styles = self._get_styles(styles, theme, base_theme=base_theme)
         self.option_custom_styles = option_custom_styles
         self.console = self._load_console()
-        super(HelpStylesFormatter, self).__init__(
-            width=self._get_width(max_width), *args, **kwargs
-        )  # type: ignore # mypy issue 4335.
 
-    def _get_width(self, max_width: int = None) -> int:
+        # override click's max_width of 80
         if max_width is None:
-            max_width = 120
-        width = min((self.console.width - 2), (max_width - 2))
-        return width
+            max_width = 100
+
+        super().__init__(max_width=max_width, *args, **kwargs)
 
     def _get_styles(
         self,
@@ -243,7 +241,6 @@ class StyledGroup(click.Group):
         command_groups: Dict[str, str] = None,
         option_groups: Dict[str, str] = None,
         option_custom_styles: Dict[str, str] = None,
-        max_width: int = None,
         *args: Any,
         **kwargs: Any,
     ):
@@ -253,7 +250,6 @@ class StyledGroup(click.Group):
         self.command_groups = command_groups
         self.option_groups = option_groups
         self.option_custom_styles = option_custom_styles
-        self.max_width = max_width
         super(StyledGroup, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -266,11 +262,12 @@ class StyledGroup(click.Group):
 
     def get_help(self, ctx: click.Context) -> str:
         formatter = HelpStylesFormatter(
+            width=ctx.terminal_width,
+            max_width=ctx.max_content_width,
             styles=self.styles,
             theme=self.theme,
             use_theme=self.use_theme,
             option_custom_styles=self.option_custom_styles,
-            max_width=self.max_width,
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
@@ -346,7 +343,6 @@ class StyledGroup(click.Group):
         kwargs.setdefault("theme", self.theme)
         kwargs.setdefault("use_theme", self.use_theme)
         kwargs.setdefault("option_custom_styles", self.option_custom_styles)
-        kwargs.setdefault("max_width", self.max_width)
         return super(StyledGroup, self).command(
             group_styles=self.styles, *args, **kwargs
         )
@@ -359,7 +355,6 @@ class StyledGroup(click.Group):
         kwargs.setdefault("theme", self.theme)
         kwargs.setdefault("use_theme", self.use_theme)
         kwargs.setdefault("option_custom_styles", self.option_custom_styles)
-        kwargs.setdefault("max_width", self.max_width)
         return super(StyledGroup, self).group(*args, **kwargs)
 
 
@@ -372,7 +367,6 @@ class StyledCommand(click.Command):
         use_theme: str = None,
         option_groups: Dict[str, str] = None,
         option_custom_styles: Dict[str, str] = None,
-        max_width: int = None,
         *args: Any,
         **kwargs: Any,
     ):
@@ -385,7 +379,6 @@ class StyledCommand(click.Command):
         self.use_theme = use_theme
         self.option_groups = option_groups
         self.option_custom_styles = option_custom_styles
-        self.max_width = max_width
         super(StyledCommand, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -397,11 +390,12 @@ class StyledCommand(click.Command):
 
     def get_help(self, ctx: click.Context) -> str:
         formatter = HelpStylesFormatter(
+            width=ctx.terminal_width,
+            max_width=ctx.max_content_width,
             styles=self.styles,
             theme=self.theme,
             use_theme=self.use_theme,
             option_custom_styles=self.option_custom_styles,
-            max_width=self.max_width,
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
@@ -458,7 +452,6 @@ class StyledMultiCommand(click.MultiCommand):
         theme: Theme = None,
         use_theme: str = None,
         option_custom_styles: Dict[str, str] = None,
-        max_width: int = None,
         *args: Any,
         **kwargs: Any,
     ):
@@ -466,16 +459,16 @@ class StyledMultiCommand(click.MultiCommand):
         self.theme = theme
         self.use_theme = use_theme
         self.option_custom_styles = option_custom_styles
-        self.max_width = max_width
         super(StyledMultiCommand, self).__init__(*args, **kwargs)
 
     def get_help(self, ctx: click.Context) -> str:
         formatter = HelpStylesFormatter(
+            width=ctx.terminal_width,
+            max_width=ctx.max_content_width,
             styles=self.styles,
             theme=self.theme,
             use_theme=self.use_theme,
             option_custom_styles=self.option_custom_styles,
-            max_width=self.max_width,
         )
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
@@ -502,7 +495,5 @@ class StyledMultiCommand(click.MultiCommand):
                 cmd.use_theme = self.use_theme
             if not getattr(cmd, "option_custom_styles", None):
                 cmd.option_custom_styles = self.option_custom_styles
-            if not getattr(cmd, "max_width"):
-                cmd.max_width = self.max_width
 
         return cmd_name, cmd, args[1:]
