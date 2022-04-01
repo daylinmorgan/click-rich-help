@@ -9,7 +9,7 @@ from rich.theme import Theme
 
 from click_rich_help import StyledCommand, StyledGroup
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"], max_content_width=90)
 
 
 def get_command_line_no() -> Dict[Optional[str], Optional[Tuple[int, int]]]:
@@ -70,7 +70,7 @@ def print_syntax(
 
 @click.group(
     cls=StyledGroup,
-    styles={"header": "yellow bold", "option": "cyan italic", "metavar": "red bold"},
+    use_theme="default",
     context_settings=CONTEXT_SETTINGS,
 )
 def cli() -> None:
@@ -100,19 +100,31 @@ def cli() -> None:
 
 
 @cli.command()
-@click.option("--count", default=1, help="some number")
-@click.option("--pretty", help="[red][underline]underlined[/] red text", is_flag=True)
-def cmd1(count: int, pretty: bool) -> None:
-    """[red bold]Command 1...try me[/]
+@click.option("--count", default=1, help="some number", show_default=True)
+@click.option(
+    "--pretty", help="[underline]underlined[/] [magenta]magenta text[/]", is_flag=True
+)
+@click.option("--name", help="a name to print", required=True)
+def cmd1(count: int, pretty: bool, name: str) -> None:
+    """Command 1...try me :+1:
 
-    Look at that red text. CRAZY!
+    Below you can see the rest of the default styles.
+
+    You can also set the color of default and requried args:
+
+    \b
+    styles={
+        "default":"[dim]dim[/]",
+        "required":"[dim red]dim red[/]",
+    }
+
     Try [cyan]python -m click_rich_help.example cmd2[/cyan]!
     You won't believe what you see.
     """
     console.print("Try again with -h")
 
 
-@cli.command(cls=StyledCommand, styles={"options": "green"})
+@cli.command(styles={"option": "green"})
 @click.option("--name", help="some string")
 @click.option("--choices", help="make a choice", type=click.Choice(["yay", "nay"]))
 @click.option("--shout/--no-shout", help="shout or don't")
@@ -182,9 +194,8 @@ def theme(option: str) -> None:
 
 
 @cli.command(
-    cls=StyledCommand,
-    styles={"options": "strike yellow"},
-    option_custom_styles={"--string": "bold red", "--style": "u green"},
+    styles={"metavar": "strike green"},
+    option_custom_styles={"--string": "bold red", "--style": "reverse green"},
 )
 @click.option("--string", help="markup string to test with rich (use quotes!)")
 @click.option("--style", help="color/style to test")
@@ -240,7 +251,7 @@ def cmd3(name: str) -> None:
 @click.option("--option-1", help="first option")
 @click.option("--option-2", help="second option")
 @click.option("--name", help="some string")
-def group(option_1, option_2, name):
+def group(option_1: str, option_2: str, name: str) -> None:
     """Group commands and options
 
     Generate lists of option groups by passing a dictionary to your command decorator
