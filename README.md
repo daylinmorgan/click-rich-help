@@ -7,8 +7,6 @@
 [![MIT License][license-shield]][license-url]
 [![CircleCI][circleci-shield]][circleci-url]
 
-<!-- TODO: update asciicinema -->
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -47,19 +45,14 @@
 </details>
 
 
-
 ## About The Project
-
 
 I wanted a simple python package to make my click app's help more readable.
 
-Click the on the cast below to see it in action!
-
-<a href="https://asciinema.org/a/iYiq7Xv2e8AgaSAMD1kEJHTkh"> <img src="https://asciinema.org/a/iYiq7Xv2e8AgaSAMD1kEJHTkh.svg" width=500> </a>
-
-
 Since writing this package the more opinionated [rich-click](https://github.com/ewels/rich-click) has been written.
-If that output is more your speed, go check it out!
+If that output is more your speed, go check it out! This project aims to provide a slightly different API and set of features.
+
+![screenshot](https://github.com/daylinmorgan/click-rich-help/blob/main/assets/screenshots/base.png)
 
 ## Getting Started
 
@@ -78,11 +71,15 @@ conda install -c conda-forge click-rich-help
 
 ## Usage
 
-There are currently (as of `v0.3.0`) several ways you can apply styles to your click app.
+As of `v22.1.0` you may no longer generate styles using named args.
 
-You apply the class to `click` groups or commands like so:
+At a minimum you should apply `StyledGroup` to your `click` group.
+If you have only one `Command` or `Multicommand` you may also use the included `StyledCommand` or `StyledMultiCommand`.
 
 ```python
+import click
+from click_rich_help import StyledGroup
+
 @click.group(
     cls=StyledGroup,
 )
@@ -90,35 +87,42 @@ def cli():
     pass
 ```
 
-Next you have several options for defining styles.
-
-Pass named args to `click.group` or `click.command`.
-
 ```python
-@click.group(
-    cls=StyledGroup,
-    headers_style="green",
-    options_style="yellow",
-    metavar_style="red",
+import click
+from click_rich_help import StyledCommand
+
+@click.command(
+  cls=StyledCommand,
 )
-def cli():
+def cmd():
     pass
 ```
 
-Pass a dictionary containing the values with keys for each style:
+![screenshot](https://raw.githubusercontent.com/daylinmorgan/click-rich-help/main/assets/screenshots/base.png)
+
+See the [documentation](https://github.com/daylinmorgan/click-rich-help/blob/main/docs/usage.md) for more info
+
+You have several options for defining your own style.
+You can pass a dictionary containing the key value pairs for styles you want included.
+`Click-rich-help` defines the following base style which will be applied when no other arguments are provided to the helper classes.
 
 ```python
-@click.group(
-    cls=StyledGroup,
-    styles = {
-      "headers":"green",
-      "options":"yellow",
-      "metavar":"red",
-    }
-)
-def cli():
-    pass
+{
+  "header": "bold italic cyan",
+  "option": "bold yellow",
+  "metavar": "green",
+  "default": "dim",
+  "required": "dim red",
+}
 ```
+
+Additionally, with `python -m click_rich_help.example cmd1 -h` you can see the remaining default theme styles in action.
+
+![screenshot](https://github.com/daylinmorgan/click-rich-help/blob/main/assets/screenshots/cmd1.png)
+
+One additional `click_rich_help` specific style is `doc_style` which can be used to apply styling across long and short docstrings.
+
+![screenshot](https://github.com/daylinmorgan/click-rich-help/blob/main/assets/screenshots/cmd3.png)
 
 You can also provide a `rich.theme.Theme` and define the style itself in a separate file:
 
@@ -139,53 +143,44 @@ def cli():
     pass
 ```
 
-These options will be parsed in the order they are shown here. Meaning the precedence of styles is theme, styles, args.
+Style options are parsed by `styles` before `theme`. So you may define both depending on your needs.
 
-For example the below command would have red headers.
+Any styles passed to the helper classes will be accessible and can be applied using `rich` markup syntax
 
-```python
-@click.group(
-    cls=StyledGroup,
-    headers_style="green",
-    styles={"headers":"yellow"}
-    theme=Theme({"headers":"red"})
-)
-def cli():
-    pass
-```
 
-In addition any string that would usually be passed to click will be
-parsed by `rich` to apply the needed colors and styles including any user defined styles.
+![screenshot](https://github.com/daylinmorgan/click-rich-help/blob/main/assets/screenshots/theme.png)
 
-This means you can use rich syntax in `click.option()` decorators as well as in docstrings of commands. For instance, you can have something like below.
+If you define any styles and wish to apply them on top of the default style you can pass `"use_theme=default"`
 
 ```python
-@click.command(
-    cls=StyledCommand,
-    options_style="italic cyan",
-    headers_style="bold yellow"
+@click.command(cls=StyledCommand,
+  styles={
+    "header": "bold red underline reverse"
+  }
 )
-@click.option('--count', default=1, help='[red]Number[/red] of greetings.')
-@click.option('--name', prompt='Your name',
-              help='The person to greet.')
+@click.option("--count", default=1, help="[red]Number[/red] of greetings.")
+@click.option("--name", prompt="Your name", help="The person to greet.")
 def hello(count, name):
-    """Simple program that greets [options]NAME[/] for a total of [options]COUNT[/] times."""
-    for x in range(count):
+    """Simple program that greets [b yellow]NAME[/b yellow] for a total of [b yellow]COUNT[/b yellow] times."""
+    for _ in range(count):
         click.echo(f"Hello {name}!")
-
-if __name__ == '__main__':
-    hello()
 ```
 
-Lastly, there is also support for styling all doc/help strings with the `doc_style` attribute.
+Without `use_theme="default"`:
 
-To preview the included example module in your own terminal you can use two methods:
+![screenshot](https://github.com/daylinmorgan/click-rich-help/blob/main/assets/screenshots/option_example.png)
 
-W/o `click-rich-help` and w/ `asciinema`
+With `use_theme="default"`:
+![screenshot](https://github.com/daylinmorgan/click-rich-help/blob/main/assets/screenshots/option_example_inherit.png)
 
-```bash
-asciinema play https://asciinema.org/a/iYiq7Xv2e8AgaSAMD1kEJHTkh
-```
+
+You may also pass `command_groups` or `option_groups` to the helper classes in order to organize help output.
+
+![screenshot](https://github.com/daylinmorgan/click-rich-help/blob/main/assets/screenshots/group.png)
+
+Currently options are matched against long options. Use `--output` not `-o`. When defining your grouping dictionary.
+
+To non-interactively preview the included example module in your own terminal you can run
 
 W/ `click-rich-help`  and `curl`
 
