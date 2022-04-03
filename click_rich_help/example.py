@@ -110,7 +110,7 @@ def cmd1(count: int, pretty: bool, name: str) -> None:
 
     Below you can see the rest of the default styles.
 
-    You can also set the color of default and requried args:
+    You can also set the color of default and required args:
 
     \b
     styles={
@@ -163,11 +163,8 @@ def cmd2(name: str, choices: str, shout: bool) -> None:
 def theme(option: str) -> None:
     """Color commands and help strings with themes
 
-    You can also define your style using a
-    [code]rich.theme.Theme[/code] or a simple dictionary.
-
-    If you already make use of a [code]rich.theme.Theme[/code]
-    then it's simple to include it.
+    If you already make use of [code]rich.theme.Theme[/code]
+    then it's simple to include additional styles.
 
     \b
     For instance:
@@ -183,7 +180,7 @@ def theme(option: str) -> None:
 
     [headers]Headers![/]
     [info]INFO[/]
-    [warning]WARNGING[/]
+    [warning]WARNING[/]
     [danger]DANGER[/]
 
     Use [yellow]python -m click_rich_help.example src theme[/] to view
@@ -276,7 +273,7 @@ def group(option_1: str, option_2: str, name: str) -> None:
         }
     )[/cyan]
 
-    All remaining options/groups will be appended in a seperate "Options" group.
+    All remaining options will be appended in a separate "Options" or "Commands" group.
     """
     console.print("Try again with -h")
 

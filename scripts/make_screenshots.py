@@ -23,7 +23,7 @@ WINDOW_TITLE = "click_rich_help demo"
 
 def setup_term():
     subprocess.run(shlex.split(f'echo -e "\033]0;{WINDOW_TITLE}\007"'))
-    term_dim = {"width": console.width, "height": console.height}
+    term_dim = {"width": console.width + 1, "height": console.height + 1}
 
     term_dim_px = {}
 
@@ -41,22 +41,26 @@ def setup_term():
 
 def screenshot(cmd, window_id, ratios, outfile):
 
-    # check the width and height of the output
     result = subprocess.run(shlex.split(cmd), capture_output=True, text=True)
-    columns = len(max(result.stdout.splitlines(), key=len)) + PAD
-    width = int(columns * ratios["width"])
-    height = int((len(result.stdout.splitlines()) + PAD + 2) * ratios["height"])
-    # deal with long commands
-    printcmd = "\n\t".join(wrap(cmd,columns))
+    columns = len(max(result.stdout.splitlines(), key=len)) + PAD + 10
+    width = round(columns * ratios["width"])
+    height = round(
+        (len(result.stdout.splitlines()) + PAD + 2 + (1 if len(cmd) > columns else 0))
+        * ratios["height"]
+    )
 
-    console.clear()
+    # deal with long commands
+
+    printcmd = "\n\t".join(wrap(cmd, columns))
     print(f">>> {printcmd} \n")
     subprocess.run(shlex.split(cmd))
-    print("\n\n")
+    # print(''.join(["\n"]*(4 if "\t" in printcmd else 3)))
+    print("\n\n\n")
     time.sleep(1)
     subprocess.run(
         shlex.split(f"import -window {window_id} -crop {width}x{height}+0+0 {outfile}")
     )
+    console.clear()
 
 
 base_cmd = "python -m click_rich_help.example"
@@ -81,9 +85,10 @@ def main():
             f"{base_cmd} src src": outdir / "src_src.png",
             (
                 f"{base_cmd} test"
-                ' --string "[red]REDTEXT [i]REDITALIC[/red] JUSTITALIC[/i]"'
+                ' --string "[red]red [i]red italic[/red] just italic[/i]"'
                 ' --style "magenta reverse"'
-            ): "test_str_style.png",
+            ): outdir
+            / "test_str_style.png",
         },
         **{
             f"{base_cmd} {cmd} -h": outdir / f"{fname}.png"
@@ -97,8 +102,15 @@ def main():
                 "theme": "theme",
             }.items()
         },
+        **{
+            "python scripts/option_example.py --help": outdir / "option_example.png",
+            "python scripts/option_example.py inherit --help": outdir
+            / "option_example_inherit.png",
+        },
     }
 
+    console.clear()
+    time.sleep(1)
     for cmd, outfile in cmds.items():
         screenshot(cmd, window_id, ratios, outfile)
     console.print("done")
