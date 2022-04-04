@@ -1,6 +1,6 @@
 import re
 from gettext import gettext as _
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, overload
 
 import click
 from click.formatting import wrap_text
@@ -36,7 +36,6 @@ class HelpStylesFormatter(click.HelpFormatter):
         styles: Dict[str, Union[str, Style]] = None,
         theme: Theme = None,
         option_custom_styles: Dict[str, str] = None,
-        max_width: int = None,
         use_theme: str = None,
         *args: Any,
         **kwargs: Any,
@@ -56,12 +55,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         self.styles = self._get_styles(styles, theme, base_theme=base_theme)
         self.option_custom_styles = option_custom_styles
         self.console = self._load_console()
-
-        # override click's max_width of 80
-        if max_width is None:
-            max_width = 100
-
-        super().__init__(max_width=max_width, *args, **kwargs)
+        super(HelpStylesFormatter, self).__init__(*args, **kwargs)
 
     def _get_styles(
         self,
@@ -261,9 +255,16 @@ class StyledGroup(click.Group):
         return styled_group
 
     def get_help(self, ctx: click.Context) -> str:
+
+        # override click's default max width of 80
+        if ctx.max_content_width is None:
+            max_width = 100
+        else:
+            max_width = ctx.max_content_width
+
         formatter = HelpStylesFormatter(
             width=ctx.terminal_width,
-            max_width=ctx.max_content_width,
+            max_width=max_width,
             styles=self.styles,
             theme=self.theme,
             use_theme=self.use_theme,
@@ -335,21 +336,43 @@ class StyledGroup(click.Group):
                 with formatter.section(_("Commands")):
                     formatter.write_dl(rows)
 
+
+    @overload
+    def command(self, __func: Callable[..., Any]) -> click.Command:
+        ...
+
+    @overload
     def command(
         self, *args: Any, **kwargs: Any
     ) -> Callable[[Callable[..., Any]], click.Command]:
+        ...
+
+    def command(
+        self, *args: Any, **kwargs: Any
+    ) -> Union[Callable[[Callable[..., Any]], click.Command], click.Command]:
         kwargs.setdefault("cls", StyledCommand)
         kwargs.setdefault("styles", self.styles)
         kwargs.setdefault("theme", self.theme)
         kwargs.setdefault("use_theme", self.use_theme)
         kwargs.setdefault("option_custom_styles", self.option_custom_styles)
         return super(StyledGroup, self).command(
-            group_styles=self.styles, *args, **kwargs
+           group_styles=self.styles, *args, **kwargs
         )
 
+
+    @overload
+    def group(self, __func: Callable[..., Any]) -> click.Group:
+        ...
+
+    @overload
     def group(
         self, *args: Any, **kwargs: Any
     ) -> Callable[[Callable[..., Any]], click.Group]:
+        ...
+
+    def group(
+        self, *args: Any, **kwargs: Any
+    ) -> Union[Callable[[Callable[..., Any]], click.Group], click.Group]:
         kwargs.setdefault("cls", StyledGroup)
         kwargs.setdefault("styles", self.styles)
         kwargs.setdefault("theme", self.theme)
@@ -389,9 +412,16 @@ class StyledCommand(click.Command):
         return styled_command
 
     def get_help(self, ctx: click.Context) -> str:
+
+        # override click's default max width of 80
+        if ctx.max_content_width is None:
+            max_width = 100
+        else:
+            max_width = ctx.max_content_width
+
         formatter = HelpStylesFormatter(
             width=ctx.terminal_width,
-            max_width=ctx.max_content_width,
+            max_width=max_width,
             styles=self.styles,
             theme=self.theme,
             use_theme=self.use_theme,
@@ -462,14 +492,22 @@ class StyledMultiCommand(click.MultiCommand):
         super(StyledMultiCommand, self).__init__(*args, **kwargs)
 
     def get_help(self, ctx: click.Context) -> str:
+
+        # override click's default max width of 80
+        if ctx.max_content_width is None:
+            max_width = 100
+        else:
+            max_width = ctx.max_content_width
+
         formatter = HelpStylesFormatter(
             width=ctx.terminal_width,
-            max_width=ctx.max_content_width,
+            max_width=max_width,
             styles=self.styles,
             theme=self.theme,
             use_theme=self.use_theme,
             option_custom_styles=self.option_custom_styles,
         )
+
         self.format_help(ctx, formatter)
         return formatter.getvalue().rstrip("\n")
 
