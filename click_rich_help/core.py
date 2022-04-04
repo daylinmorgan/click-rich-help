@@ -4,13 +4,15 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, 
 
 import click
 from click.formatting import wrap_text
-from rich.console import Console
 from rich.style import Style
 from rich.theme import Theme
+from rich.console import CaptureError, Console
+from rich.style import Style
+
 
 from .utils import _colorize
 
-CLICK_STYLES = ["header", "option", "metavar", "doc_style", "default"]
+CLICK_STYLES = ["header", "option", "metavar", "doc_style", "default", "required"]
 
 THEMES = {
     "default": Theme(
@@ -157,55 +159,83 @@ class HelpStylesFormatter(click.HelpFormatter):
                 choices = metavar.split("[")[1].split("]")[0].split("|")
                 colorized_metavar = "[{}]".format(
                     "|".join(
-                        [_colorize(self.console, choice, color) for choice in choices]
+                        [self._colorize(choice, color) for choice in choices]
                     )
                 )
             else:
-                colorized_metavar = _colorize(self.console, metavar, color)
+                colorized_metavar = self._colorize(metavar, color)
 
             term = option_name.replace(metavar, "")
             return (
-                _colorize(self.console, term, self._pick_color(term))
+                self._colorize(term, self._pick_color(term))
                 + colorized_metavar
             )
 
         elif "/" in option_name:
             return " / ".join(
                 [
-                    _colorize(self.console, flag.strip(), self._pick_color(option_name))
+                    self._colorize(flag.strip(), self._pick_color(option_name))
                     for flag in option_name.split("/")
                 ]
             )
         else:
 
-            return _colorize(self.console, option_name, self._pick_color(option_name))
+            return self._colorize(option_name, self._pick_color(option_name))
+
+
+    def _colorize(
+        self,
+        text: str = None,
+        style: Union[str, Style] = None,
+        suffix: str = None,
+    ) -> str:
+        try:
+            with self.console.capture() as capture:
+                self.console.print(text, style=style, end="")
+            return capture.get() + (suffix or "")
+        except CaptureError:
+            raise ValueError(f"Error capturing output for text: {text} and style: {style}")
 
     def _write_option_help(self, help_txt: str) -> str:
-        return _colorize(self.console, self._extract_extras(help_txt), "doc_style")
+        return self._colorize(self._extract_extras(help_txt), "doc_style")
 
     def write_usage(self, prog: str, args: str = "", prefix: str = None) -> None:
         # TODO: make usage text a style
         if not prefix:
             prefix = "Usage"
-        colorized_prefix = _colorize(self.console, prefix, style="header", suffix=": ")
+        colorized_prefix = self._colorize(prefix, style="header", suffix=": ")
         super(HelpStylesFormatter, self).write_usage(
-            _colorize(self.console, prog, "bold"),
-            _colorize(self.console, args, "bold"),
+            self._colorize(prog, "bold"),
+            self._colorize(args, "bold"),
             prefix=colorized_prefix,
         )
 
     def write_heading(self, heading: str) -> None:
-        colorized_heading = _colorize(self.console, heading, style="header")
+        colorized_heading = self._colorize(heading, style="header")
         super(HelpStylesFormatter, self).write_heading(colorized_heading)
 
     def write_dl(
-        self, rows: Sequence[Tuple[str, str]], col_max: int = 30, col_spacing: int = 2
+        self, rows: Sequence[Tuple[str, str]], col_max: int = 30, col_spacing: int = 2, dl_mode: str = None
     ) -> None:
-        colorized_rows: Sequence[Tuple[str, str]] = [
+
+        if not dl_mode:
+            colorized_rows: Sequence[Tuple[str, str]] = [
             (self._write_definition(row[0]), self._write_option_help(row[1]))
             for row in rows
         ]
-        super(HelpStylesFormatter, self).write_dl(colorized_rows, col_max, col_spacing)
+            super(HelpStylesFormatter, self).write_dl(colorized_rows, col_max, col_spacing)
+
+        elif dl_mode == 'column':
+            print(f"{dl_mode=}")
+            pass
+        elif dl_mode == "column-groups":
+            print(f"{dl_mode=}")
+            pass
+        elif dl_mode == 'newline':
+            pass
+        else:
+            raise ValueError(f"{dl_mode} not one of column, column-groups, newline")
+
 
     def write_text(self, text: str) -> None:
 
