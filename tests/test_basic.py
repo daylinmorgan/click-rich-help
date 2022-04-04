@@ -80,7 +80,7 @@ def test_env_no_color(runner):
     result = runner.invoke(cli, ["--help"], color=True, env={"NO_COLOR": "1"})
     assert not result.exception
     assert result.output.splitlines() == [
-        "Usage: cli [OPTIONS] COMMAND [ARGS]...",
+        "Usage: \x1b[1mcli\x1b[0m \x1b[1m[OPTIONS] COMMAND [ARGS]...\x1b[0m",
         "",
         "Options:",
         "  --name TEXT  The person to greet.",

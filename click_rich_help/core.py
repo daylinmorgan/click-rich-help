@@ -336,7 +336,6 @@ class StyledGroup(click.Group):
                 with formatter.section(_("Commands")):
                     formatter.write_dl(rows)
 
-
     @overload
     def command(self, __func: Callable[..., Any]) -> click.Command:
         ...
@@ -356,9 +355,8 @@ class StyledGroup(click.Group):
         kwargs.setdefault("use_theme", self.use_theme)
         kwargs.setdefault("option_custom_styles", self.option_custom_styles)
         return super(StyledGroup, self).command(
-           group_styles=self.styles, *args, **kwargs
+            group_styles=self.styles, *args, **kwargs
         )
-
 
     @overload
     def group(self, __func: Callable[..., Any]) -> click.Group:
