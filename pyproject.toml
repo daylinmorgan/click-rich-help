@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "click-rich-help"
-version = "22.1.0"
+version = "22.1.1"
 description = "make a beautiful click app with rich"
 authors = ["Daylin Morgan <daylinmorgan@gmail.com>"]
 repository = "https://github.com/daylinmorgan/click-rich-help"
@@ -45,7 +45,7 @@ warn_return_any = true
 warn_unused_configs = true
 
 [tool.bumpver]
-current_version = "v22.1.0"
+current_version = "v22.1.1"
 version_pattern = "vMAJOR.MINOR.PATCH[-TAG]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
