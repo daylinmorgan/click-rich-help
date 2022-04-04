@@ -1,14 +1,22 @@
 import re
 from gettext import gettext as _
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, overload
+from typing import (  # Protocol,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    overload,
+)
 
 import click
 from click.formatting import wrap_text
-from rich.style import Style
-from rich.theme import Theme
 from rich.console import CaptureError, Console
 from rich.style import Style
-
+from rich.theme import Theme
 
 from .utils import _colorize
 
@@ -158,18 +166,13 @@ class HelpStylesFormatter(click.HelpFormatter):
             if "[" in metavar and "]" in metavar:
                 choices = metavar.split("[")[1].split("]")[0].split("|")
                 colorized_metavar = "[{}]".format(
-                    "|".join(
-                        [self._colorize(choice, color) for choice in choices]
-                    )
+                    "|".join([self._colorize(choice, color) for choice in choices])
                 )
             else:
                 colorized_metavar = self._colorize(metavar, color)
 
             term = option_name.replace(metavar, "")
-            return (
-                self._colorize(term, self._pick_color(term))
-                + colorized_metavar
-            )
+            return self._colorize(term, self._pick_color(term)) + colorized_metavar
 
         elif "/" in option_name:
             return " / ".join(
@@ -182,7 +185,6 @@ class HelpStylesFormatter(click.HelpFormatter):
 
             return self._colorize(option_name, self._pick_color(option_name))
 
-
     def _colorize(
         self,
         text: str = None,
@@ -194,7 +196,9 @@ class HelpStylesFormatter(click.HelpFormatter):
                 self.console.print(text, style=style, end="")
             return capture.get() + (suffix or "")
         except CaptureError:
-            raise ValueError(f"Error capturing output for text: {text} and style: {style}")
+            raise ValueError(
+                f"Error capturing output for text: {text} and style: {style}"
+            )
 
     def _write_option_help(self, help_txt: str) -> str:
         return self._colorize(self._extract_extras(help_txt), "doc_style")
@@ -215,27 +219,37 @@ class HelpStylesFormatter(click.HelpFormatter):
         super(HelpStylesFormatter, self).write_heading(colorized_heading)
 
     def write_dl(
-        self, rows: Sequence[Tuple[str, str]], col_max: int = 30, col_spacing: int = 2, dl_mode: str = None
+        self,
+        rows: Sequence[Tuple[str, str]],
+        col_max: int = 30,
+        col_spacing: int = 2,
+        dl_mode: str = None,
+        sizes: List[int] = None,
     ) -> None:
-
+        # from icecream import ic
+        # ic(rows)
+        # calculate 'sizes' for any dl_mode
+        # sizes = [max(short arg),max(long arg), max(metavar), max total length ]
+        # would it be more pythonic to use actual kw or positional args?
+        # for newline mode I might not need to add in the spacing manually unless each args is a grid by itself?
+        # which it could be but seems like it might be less efficient...
+        # regardless we will need to move to a rich.text.Text based conversion for the default style
         if not dl_mode:
             colorized_rows: Sequence[Tuple[str, str]] = [
-            (self._write_definition(row[0]), self._write_option_help(row[1]))
-            for row in rows
-        ]
-            super(HelpStylesFormatter, self).write_dl(colorized_rows, col_max, col_spacing)
+                (self._write_definition(row[0]), self._write_option_help(row[1]))
+                for row in rows
+            ]
+            super(HelpStylesFormatter, self).write_dl(
+                colorized_rows, col_max, col_spacing
+            )
 
-        elif dl_mode == 'column':
-            print(f"{dl_mode=}")
+        elif dl_mode == "column":
+            print(f"dl_mode -> {dl_mode}")
             pass
-        elif dl_mode == "column-groups":
-            print(f"{dl_mode=}")
-            pass
-        elif dl_mode == 'newline':
+        elif dl_mode == "newline":
             pass
         else:
             raise ValueError(f"{dl_mode} not one of column, column-groups, newline")
-
 
     def write_text(self, text: str) -> None:
 
@@ -256,36 +270,30 @@ class HelpStylesFormatter(click.HelpFormatter):
         self.write("\n")
 
 
-class StyledGroup(click.Group):
+# use click.Command as base class so mypy won't yell at me
+class StyledBase(click.Command):
     def __init__(
         self,
+        group_styles: Dict[str, Union[str, Style]] = None,
         styles: Dict[str, Union[str, Style]] = None,
         theme: Theme = None,
         use_theme: str = None,
-        command_groups: Dict[str, str] = None,
         option_groups: Dict[str, str] = None,
         option_custom_styles: Dict[str, str] = None,
         *args: Any,
         **kwargs: Any,
     ):
-        self.styles = styles
+        self.styles = {
+            **(group_styles if group_styles else {}),
+            **(styles if styles else {}),
+        }
         self.theme = theme
         self.use_theme = use_theme
-        self.command_groups = command_groups
         self.option_groups = option_groups
         self.option_custom_styles = option_custom_styles
-        super(StyledGroup, self).__init__(*args, **kwargs)
-
-    @classmethod
-    def from_group(cls, group: click.Group) -> "StyledGroup":
-        styled_group = cls()
-
-        for key, value in group.__dict__.items():
-            styled_group.__dict__[key] = value
-        return styled_group
+        super(StyledBase, self).__init__(*args, **kwargs)
 
     def get_help(self, ctx: click.Context) -> str:
-
         # override click's default max width of 80
         if ctx.max_content_width is None:
             max_width = 100
@@ -301,11 +309,91 @@ class StyledGroup(click.Group):
             option_custom_styles=self.option_custom_styles,
         )
         self.format_help(ctx, formatter)
+
         return formatter.getvalue().rstrip("\n")
+
+    def _write_option_groups(
+        self, opts: List[Tuple[str, str]], formatter: click.HelpFormatter
+    ) -> Union[List[Tuple[str, str]], None]:
+        grouped_opt: List[Tuple[str, str]] = []
+
+        if self.option_groups:
+            for group, params in self.option_groups.items():
+                write_params: List[Tuple[str, str]] = []
+
+                for param in params:
+                    try:
+                        opt = [opt for opt in opts if param in opt[0]][0]
+                    except IndexError:
+                        raise ValueError(
+                            f"Unable to find option '{param}' in list of options"
+                        )
+                    write_params.append(opt)
+
+                grouped_opt.extend(write_params)
+
+                with formatter.section(_(group)):
+                    formatter.write_dl(write_params)
+        return grouped_opt
+
+    def format_options(
+        self, ctx: click.Context, formatter: click.HelpFormatter
+    ) -> None:
+        """Writes all the options into the formatter if they exist."""
+        opts = []
+
+        for param in self.get_params(ctx):
+            rv = param.get_help_record(ctx)
+            if rv is not None:
+                opts.append(rv)
+
+        grouped_opt = self._write_option_groups(opts, formatter)
+
+        opts = [opt for opt in opts if opt not in grouped_opt] if grouped_opt else opts
+
+        if opts:
+            with formatter.section(_("Options")):
+                formatter.write_dl(opts)
+
+
+class StyledCommand(StyledBase, click.Command):  # , click.Command):
+    def __init__(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        super(StyledCommand, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def from_command(cls, command: click.Command) -> "StyledCommand":
+        styled_command = cls()
+        for key, value in command.__dict__.items():
+            styled_command.__dict__[key] = value
+        return styled_command
+
+
+class StyledGroup(StyledBase, click.Group):
+    def __init__(
+        self,
+        command_groups: Dict[str, str] = None,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        self.command_groups = command_groups
+        super(StyledGroup, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def from_group(cls, group: click.Group) -> "StyledGroup":
+        styled_group = cls()
+
+        for key, value in group.__dict__.items():
+            styled_group.__dict__[key] = value
+        return styled_group
 
     def _write_command_groups(
         self, cmds: List[Tuple[str, str]], formatter: click.HelpFormatter
     ) -> List[Tuple[str, str]]:
+        """string"""
 
         grouped_cmds: List[Tuple[str, str]] = []
         if self.command_groups:
@@ -354,7 +442,6 @@ class StyledGroup(click.Group):
             for subcommand, cmd in commands:
                 help = cmd.get_short_help_str(limit)
                 rows.append((subcommand, help))
-
             grouped_cmds = self._write_command_groups(rows, formatter)
 
             rows = (
@@ -365,6 +452,12 @@ class StyledGroup(click.Group):
             if rows:
                 with formatter.section(_("Commands")):
                     formatter.write_dl(rows)
+
+    def format_options(
+        self, ctx: click.Context, formatter: click.HelpFormatter
+    ) -> None:
+        super().format_options(ctx, formatter)
+        self.format_commands(ctx, formatter)
 
     @overload
     def command(self, __func: Callable[..., Any]) -> click.Command:
@@ -409,27 +502,12 @@ class StyledGroup(click.Group):
         return super(StyledGroup, self).group(*args, **kwargs)
 
 
-class StyledCommand(click.Command):
+class StyledCommand(StyledBase):  # , click.Command):
     def __init__(
         self,
-        group_styles: Dict[str, Union[str, Style]] = None,
-        styles: Dict[str, Union[str, Style]] = None,
-        theme: Theme = None,
-        use_theme: str = None,
-        option_groups: Dict[str, str] = None,
-        option_custom_styles: Dict[str, str] = None,
         *args: Any,
         **kwargs: Any,
     ):
-
-        self.styles = {
-            **(group_styles if group_styles else {}),
-            **(styles if styles else {}),
-        }
-        self.theme = theme
-        self.use_theme = use_theme
-        self.option_groups = option_groups
-        self.option_custom_styles = option_custom_styles
         super(StyledCommand, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -439,105 +517,20 @@ class StyledCommand(click.Command):
             styled_command.__dict__[key] = value
         return styled_command
 
-    def get_help(self, ctx: click.Context) -> str:
 
-        # override click's default max width of 80
-        if ctx.max_content_width is None:
-            max_width = 100
-        else:
-            max_width = ctx.max_content_width
-
-        formatter = HelpStylesFormatter(
-            width=ctx.terminal_width,
-            max_width=max_width,
-            styles=self.styles,
-            theme=self.theme,
-            use_theme=self.use_theme,
-            option_custom_styles=self.option_custom_styles,
-        )
-        self.format_help(ctx, formatter)
-        return formatter.getvalue().rstrip("\n")
-
-    def _write_option_groups(
-        self, opts: List[Tuple[str, str]], formatter: click.HelpFormatter
-    ) -> Union[List[Tuple[str, str]], None]:
-        grouped_opt: List[Tuple[str, str]] = []
-
-        if self.option_groups:
-            for group, params in self.option_groups.items():
-                write_params: List[Tuple[str, str]] = []
-
-                for param in params:
-                    try:
-                        opt = [opt for opt in opts if param in opt[0]][0]
-                    except IndexError:
-                        raise ValueError(
-                            f"Unable to find option '{param}' in list of options"
-                        )
-                    write_params.append(opt)
-
-                grouped_opt.extend(write_params)
-
-                with formatter.section(_(group)):
-                    formatter.write_dl(write_params)
-
-        return grouped_opt
+class StyledMultiCommand(StyledBase, click.MultiCommand):
+    def __init__(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        super(StyledMultiCommand, self).__init__(*args, **kwargs)
 
     def format_options(
         self, ctx: click.Context, formatter: click.HelpFormatter
     ) -> None:
-        """Writes all the options into the formatter if they exist."""
-        opts = []
-
-        for param in self.get_params(ctx):
-            rv = param.get_help_record(ctx)
-            if rv is not None:
-                opts.append(rv)
-
-        grouped_opt = self._write_option_groups(opts, formatter)
-
-        opts = [opt for opt in opts if opt not in grouped_opt] if grouped_opt else opts
-
-        if opts:
-            with formatter.section(_("Options")):
-                formatter.write_dl(opts)
-
-
-class StyledMultiCommand(click.MultiCommand):
-    def __init__(
-        self,
-        styles: Dict[str, Union[str, Style]] = None,
-        theme: Theme = None,
-        use_theme: str = None,
-        option_custom_styles: Dict[str, str] = None,
-        *args: Any,
-        **kwargs: Any,
-    ):
-        self.styles = styles
-        self.theme = theme
-        self.use_theme = use_theme
-        self.option_custom_styles = option_custom_styles
-        super(StyledMultiCommand, self).__init__(*args, **kwargs)
-
-    def get_help(self, ctx: click.Context) -> str:
-
-        # override click's default max width of 80
-        if ctx.max_content_width is None:
-            max_width = 100
-        else:
-            max_width = ctx.max_content_width
-
-        formatter = HelpStylesFormatter(
-            width=ctx.terminal_width,
-            max_width=max_width,
-            styles=self.styles,
-            theme=self.theme,
-            use_theme=self.use_theme,
-            option_custom_styles=self.option_custom_styles,
-        )
-
-        self.format_help(ctx, formatter)
-        return formatter.getvalue().rstrip("\n")
+        super().format_options(ctx, formatter)
+        self.format_commands(ctx, formatter)
 
     def resolve_command(
         self, ctx: click.Context, args: List[str]
