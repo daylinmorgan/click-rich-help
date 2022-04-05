@@ -1,16 +1,6 @@
 import re
 from gettext import gettext as _
-from typing import (  # Protocol,
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    overload,
-)
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, overload
 
 import click
 from click.formatting import wrap_text
@@ -111,11 +101,10 @@ class HelpStylesFormatter(click.HelpFormatter):
 
     def _get_opt_names(self, option_name: str) -> List[str]:
         opts = self.option_regex.findall(option_name)
+        print(opts)
         if not opts:
             return [option_name]
         else:
-            # Include this for backwards compatibility
-            opts.append(option_name.split()[0])
             return opts
 
     def _pick_color(self, option_name: str) -> Union[str, Style]:
@@ -182,7 +171,6 @@ class HelpStylesFormatter(click.HelpFormatter):
                 ]
             )
         else:
-
             return self._colorize(option_name, self._pick_color(option_name))
 
     def _colorize(
@@ -226,14 +214,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         dl_mode: str = None,
         sizes: List[int] = None,
     ) -> None:
-        # from icecream import ic
-        # ic(rows)
-        # calculate 'sizes' for any dl_mode
-        # sizes = [max(short arg),max(long arg), max(metavar), max total length ]
-        # would it be more pythonic to use actual kw or positional args?
-        # for newline mode I might not need to add in the spacing manually unless each args is a grid by itself?
-        # which it could be but seems like it might be less efficient...
-        # regardless we will need to move to a rich.text.Text based conversion for the default style
+        # generalize the color function to return multiple rich.Text objects we can then combined
         if not dl_mode:
             colorized_rows: Sequence[Tuple[str, str]] = [
                 (self._write_definition(row[0]), self._write_option_help(row[1]))
@@ -270,8 +251,7 @@ class HelpStylesFormatter(click.HelpFormatter):
         self.write("\n")
 
 
-# use click.Command as base class so mypy won't yell at me
-class StyledBase(click.Command):
+class StyledBase:
     def __init__(
         self,
         group_styles: Dict[str, Union[str, Style]] = None,
@@ -292,6 +272,22 @@ class StyledBase(click.Command):
         self.option_groups = option_groups
         self.option_custom_styles = option_custom_styles
         super(StyledBase, self).__init__(*args, **kwargs)
+
+
+class StyledCommand(StyledBase, click.Command):
+    def __init__(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        super(StyledCommand, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def from_command(cls, command: click.Command) -> "StyledCommand":
+        styled_command = cls()
+        for key, value in command.__dict__.items():
+            styled_command.__dict__[key] = value
+        return styled_command
 
     def get_help(self, ctx: click.Context) -> str:
         # override click's default max width of 80
@@ -350,29 +346,14 @@ class StyledBase(click.Command):
         grouped_opt = self._write_option_groups(opts, formatter)
 
         opts = [opt for opt in opts if opt not in grouped_opt] if grouped_opt else opts
-
+        # todo, get lengths -> [short_arg,max_arg,metavar]
         if opts:
+            print(opts)
             with formatter.section(_("Options")):
                 formatter.write_dl(opts)
 
 
-class StyledCommand(StyledBase, click.Command):  # , click.Command):
-    def __init__(
-        self,
-        *args: Any,
-        **kwargs: Any,
-    ):
-        super(StyledCommand, self).__init__(*args, **kwargs)
-
-    @classmethod
-    def from_command(cls, command: click.Command) -> "StyledCommand":
-        styled_command = cls()
-        for key, value in command.__dict__.items():
-            styled_command.__dict__[key] = value
-        return styled_command
-
-
-class StyledGroup(StyledBase, click.Group):
+class StyledGroup(StyledCommand, click.Group):
     def __init__(
         self,
         command_groups: Dict[str, str] = None,
@@ -502,23 +483,7 @@ class StyledGroup(StyledBase, click.Group):
         return super(StyledGroup, self).group(*args, **kwargs)
 
 
-class StyledCommand(StyledBase):  # , click.Command):
-    def __init__(
-        self,
-        *args: Any,
-        **kwargs: Any,
-    ):
-        super(StyledCommand, self).__init__(*args, **kwargs)
-
-    @classmethod
-    def from_command(cls, command: click.Command) -> "StyledCommand":
-        styled_command = cls()
-        for key, value in command.__dict__.items():
-            styled_command.__dict__[key] = value
-        return styled_command
-
-
-class StyledMultiCommand(StyledBase, click.MultiCommand):
+class StyledMultiCommand(StyledCommand, click.MultiCommand):
     def __init__(
         self,
         *args: Any,
