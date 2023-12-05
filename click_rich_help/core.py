@@ -101,7 +101,7 @@ class HelpStylesFormatter(click.HelpFormatter):
 
     def _get_opt_names(self, option_name: str) -> List[str]:
         opts = self.option_regex.findall(option_name)
-        print(opts)
+        # print(opts)
         if not opts:
             return [option_name]
         else:
@@ -348,7 +348,7 @@ class StyledCommand(StyledBase, click.Command):
         opts = [opt for opt in opts if opt not in grouped_opt] if grouped_opt else opts
         # todo, get lengths -> [short_arg,max_arg,metavar]
         if opts:
-            print(opts)
+            # print(opts)
             with formatter.section(_("Options")):
                 formatter.write_dl(opts)
 

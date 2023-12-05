@@ -4,8 +4,12 @@ import click
 
 from click_rich_help import StyledCommand
 
+@click.group()
+def cli():
+    pass
 
-@click.command(cls=StyledCommand, styles={"header": "bold red underline reverse"})
+
+@cli.command(cls=StyledCommand, styles={"header": "bold red underline"})
 @click.option("--count", default=1, help="[red]Number[/red] of greetings.")
 @click.option("--name", prompt="Your name", help="The person to greet.")
 def hello(count, name):
@@ -14,21 +18,23 @@ def hello(count, name):
         click.echo(f"Hello {name}!")
 
 
-@click.command(
+@cli.command(
     cls=StyledCommand,
-    styles={"header": "bold red underline reverse"},
+    styles={"header": "bold red underline"},
     use_theme="default",
 )
 @click.option("--count", default=1, help="[red]Number[/red] of greetings.")
 @click.option("--name", prompt="Your name", help="The person to greet.")
-def hello_inherit(count, name):
+def inherit(count, name):
     """Simple program that greets [b yellow]NAME[/b yellow] for a total of [b yellow]COUNT[/b yellow] times."""
     for _ in range(count):
         click.echo(f"Hello {name}!")
 
-
 if __name__ == "__main__":
-    if sys.argv[1] == "inherit":
-        hello_inherit()
-    else:
-        hello()
+    cli()
+
+# if __name__ == "__main__":
+#     if sys.argv[1] == "inherit":
+#         hello_inherit()
+#     else:
+#         hello()

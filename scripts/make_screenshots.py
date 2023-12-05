@@ -1,75 +1,150 @@
 #!/usr/bin/env python
 
 # Used to generate the screenshots for the README
-# Depends on several subprocess calls to imagemagick and wmctrl.
+# Requires rich>12.2 currently using development copy from github
 
-
-import shlex
-import subprocess
 import sys
-import time
 from pathlib import Path
 from textwrap import wrap
 
+from rich.text import Text
 from rich.console import Console
 from rich.prompt import Confirm
+from click.testing import CliRunner
+from click_rich_help.example import cli as example_cli
+from option_example import cli as option_cli
 
 PAD = 2
 
-console = Console()
+# override svg format to remove background and have simple terminal window
+CONSOLE_SVG_FORMAT = """\
+<svg width="{total_width}" height="{total_height}" viewBox="0 0 {total_width} {total_height}"
+     xmlns="http://www.w3.org/2000/svg">
+    <style>
+        @font-face {{
+            font-family: "{font_family}";
+            src: local("FiraCode-Regular"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+            font-style: normal;
+            font-weight: 400;
+        }}
+        @font-face {{
+            font-family: "{font_family}";
+            src: local("FiraCode-Bold"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                 url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+            font-style: bold;
+            font-weight: 700;
+        }}
+        .{classes_prefix}-terminal-wrapper span {{
+            display: inline-block;
+            white-space: pre;
+            vertical-align: top;
+            font-size: {font_size}px;
+            font-family:'{font_family}','Cascadia Code',Monaco,Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace;
+        }}
+        .{classes_prefix}-terminal-wrapper a {{
+            text-decoration: none;
+            color: inherit;
+        }}
+        .{classes_prefix}-terminal-body .blink {{
+           animation: {classes_prefix}-blinker 1s infinite;
+        }}
+        @keyframes {classes_prefix}-blinker {{
+            from {{ opacity: 1.0; }}
+            50% {{ opacity: 0.3; }}
+            to {{ opacity: 1.0; }}
+        }}
+        .{classes_prefix}-terminal-wrapper {{
+            padding: {margin}px;
+            padding-top: 100px;
+        }}
+        .{classes_prefix}-terminal {{
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: {theme_background_color};
+            border-radius: 14px;
+            outline: 1px solid #484848;
+        }}
+        .{classes_prefix}-terminal-header {{
+            position: relative;
+            width: 100%;
+            background-color: #2e2e2e;
+            margin-bottom: 12px;
+            font-weight: bold;
+            border-radius: 14px 14px 0 0;
+            color: {theme_foreground_color};
+            font-size: 18px;
+            box-shadow: inset 0px -1px 0px 0px #4e4e4e,
+                        inset 0px -4px 8px 0px #1a1a1a;
+        }}
+        .{classes_prefix}-terminal-title-tab {{
+            display: inline-block;
+            margin-top: 14px;
+            margin-left: 124px;
+            font-family: sans-serif;
+            padding: 14px 28px;
+            border-radius: 6px 6px 0 0;
+            background-color: {theme_background_color};
+            box-shadow: inset 0px 1px 0px 0px #4e4e4e,
+                        0px -4px 4px 0px #1e1e1e,
+                        inset 1px 0px 0px 0px #4e4e4e,
+                        inset -1px 0px 0px 0px #4e4e4e;
+        }}
+        .{classes_prefix}-terminal-traffic-lights {{
+            position: absolute;
+            top: 24px;
+            left: 20px;
+        }}
+        .{classes_prefix}-terminal-body {{
+            line-height: {line_height}px;
+            padding: 14px;
+        }}
+        {stylesheet}
+    </style>
+    <foreignObject x="0" y="0" width="100%" height="100%">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+            <div class="{classes_prefix}-terminal-wrapper">
+                <div class="{classes_prefix}-terminal">
+                    <div class="{classes_prefix}-terminal-header">
+                        <svg class="{classes_prefix}-terminal-traffic-lights" width="90" height="21" viewBox="0 0 90 21" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="14" cy="8" r="8" fill="#ff6159"/>
+                            <circle cx="38" cy="8" r="8" fill="#ffbd2e"/>
+                            <circle cx="62" cy="8" r="8" fill="#28c941"/>
+                        </svg>
+                        <div class="{classes_prefix}-terminal-title-tab">{title}</div>
+                    </div>
+                    <div class="{classes_prefix}-terminal-body">
+                        {code}
+                    </div>
+                </div>
+            </div>
+        </body>
+    </foreignObject>
+</svg>
+"""
 
-WINDOW_TITLE = "click_rich_help demo"
 
+def screenshot(cli,cmd,outfile):
 
-def setup_term():
-    subprocess.run(shlex.split(f'echo -e "\033]0;{WINDOW_TITLE}\007"'))
-    term_dim = {"width": console.width + 1, "height": console.height + 1}
+    svg_console = Console(record=True)
 
-    term_dim_px = {}
+    runner = CliRunner()
+    result = runner.invoke(cli,cmd,color=True)
+    rich_text = Text.from_ansi(result.output)
+    max_cols = svg_console.measure(rich_text).maximum + PAD
+    svg_console.width=max_cols
 
-    result = subprocess.run(shlex.split("wmctrl -lG "), capture_output=True, text=True)
-    for line in result.stdout.splitlines():
-        if WINDOW_TITLE in line:
-            window_id = line.split()[0]
-            term_dim_px["width"] = int(line.split()[4])
-            term_dim_px["height"] = int(line.split()[5])
-
-    return window_id, {
-        dim: term_dim_px[dim] / term_dim[dim] for dim in ["width", "height"]
-    }
-
-
-def screenshot(cmd, window_id, ratios, outfile):
-
-    result = subprocess.run(shlex.split(cmd), capture_output=True, text=True)
-    columns = len(max(result.stdout.splitlines(), key=len)) + PAD + 10
-    width = round(columns * ratios["width"])
-    height = round(
-        (len(result.stdout.splitlines()) + PAD + 2 + (1 if len(cmd) > columns else 0))
-        * ratios["height"]
-    )
-
-    # deal with long commands
-
-    printcmd = "\n\t".join(wrap(cmd, columns))
-    print(f">>> {printcmd} \n")
-    subprocess.run(shlex.split(cmd))
-    # print(''.join(["\n"]*(4 if "\t" in printcmd else 3)))
-    print("\n\n\n")
-    time.sleep(1)
-    subprocess.run(
-        shlex.split(f"import -window {window_id} -crop {width}x{height}+0+0 {outfile}")
-    )
-    console.clear()
-
-
-base_cmd = "python -m click_rich_help.example"
+    printcmd = "\n\t".join(wrap(f"python -m click_rich_help.example {cmd}", max_cols))
+    svg_console.print(f">>> {printcmd} \n")
+    svg_console.print(rich_text)
+    svg_console.save_svg(f"{outfile.with_suffix('.svg')}",title=f"click_rich_help.example",code_format=CONSOLE_SVG_FORMAT)
 
 
 def main():
-    console = Console()
-
-    window_id, ratios = setup_term()
     outdir = Path("assets/screenshots")
     outdir.mkdir(exist_ok=True, parents=True)
 
@@ -78,20 +153,19 @@ def main():
     ):
         sys.exit()
 
-    cmd = "python -m click_rich_help.example -h"
     cmds = {
         **{
-            f"{base_cmd} -h": outdir / "base.png",
-            f"{base_cmd} src src": outdir / "src_src.png",
+            f"-h": outdir / "base.png",
+            f"src src": outdir / "src_src.png",
             (
-                f"{base_cmd} test"
+                f"test"
                 ' --string "[red]red [i]red italic[/red] just italic[/i]"'
                 ' --style "magenta reverse"'
             ): outdir
             / "test_str_style.png",
         },
         **{
-            f"{base_cmd} {cmd} -h": outdir / f"{fname}.png"
+            f"{cmd} -h": outdir / f"{fname}.png"
             for cmd, fname in {
                 "cmd1": "cmd1",
                 "cmd2": "cmd2",
@@ -102,18 +176,20 @@ def main():
                 "theme": "theme",
             }.items()
         },
-        **{
-            "python scripts/option_example.py --help": outdir / "option_example.png",
-            "python scripts/option_example.py inherit --help": outdir
-            / "option_example_inherit.png",
-        },
     }
 
-    console.clear()
-    time.sleep(1)
     for cmd, outfile in cmds.items():
-        screenshot(cmd, window_id, ratios, outfile)
-    console.print("done")
+        screenshot(example_cli,cmd,outfile)
+
+    cmds = {
+            "hello --help": outdir / "option_example.png",
+            "inherit --help": outdir / "option_example_inherit.png",
+        }
+
+    for cmd,outfile in cmds.items():
+        screenshot(option_cli,cmd,outfile)
+
+    print("done")
 
 
 if __name__ == "__main__":
